@@ -30,6 +30,8 @@ objectives they missed, and gets a day-by-day plan saved in `localStorage`.
 | `aplus-1201` | A+ Core 1 (220-1201) | Came with the upload. It already matched the owner's doc and has not been changed. It is the only bank with warm-up `recall` questions. |
 | `cysa-v4` | CySA+ (CS0-004) | The owner's Google Doc, 29 Sept 2026, with 13 titles and numbers confirmed by a real score report on 30 Sept (`verify/cysa-score-report-2026-09-30.md`). Replaced the CS0-003 bank, which the owner confirmed should go. |
 | `secplus-v8` | Security+ (V8) | The owner's Google Doc, 29 Sept 2026. New. |
+| `aplus-1202` | A+ Core 2 (220-1202) | The owner's Google Doc, copied from CompTIA's Core 2 V15 page. Built 30 Sept 2026: 4 domains, 11 objectives. |
+| `netplus-v9` | Network+ (N10-009) | The owner's Google Doc, copied from CompTIA's Network+ page. Built 30 Sept 2026: 5 domains, 34 objectives. Was the disabled `netplus` option. |
 
 - **Objectives come from the owner's Google Doc "All updated Objectives"**
   (see the global CLAUDE.md). Re-read it before changing a bank. Domain names,
@@ -49,6 +51,12 @@ objectives they missed, and gets a day-by-day plan saved in `localStorage`.
   - **Security+ V8:** `numbersUnconfirmed: true`. The whole-bank "Check the
     titles, not just the numbers" note stays until a V8 score report or the
     official PDF confirms the numbering.
+  - **A+ Core 2 and Network+:** `numbersUnconfirmed: true`. For these two the
+    doc gives topic labels ("OS installation", "Traffic types"), not
+    CompTIA's objective titles, so titles and numbers are both provisional.
+    The owner chose on 30 Sept 2026 to "build from what I gave you" rather
+    than wait for the PDFs. CompTIA's numbered list, or a score report, will
+    likely regroup Network+'s 34 topics; when one arrives, rebuild against it.
 - **The keys carry the version on purpose.** A saved plan is stored as
   `retakePlanner_v1_<key>`, and resuming looks objectives up by number. Under
   the old `cysa` key, a CS0-003 plan on a student's device would have reopened
@@ -60,10 +68,7 @@ objectives they missed, and gets a day-by-day plan saved in `localStorage`.
 - **`PASSING_SCORES`:** Security+ V8 is 750, confirmed by the owner on
   30 September 2026. CySA+ is 750, as printed on the CS0-004 score report.
   A+ Core 2 (700) and Network+ (725) are also confirmed by the owner on
-  30 September 2026. Both exams are still "coming soon": they wait on CompTIA's
-  official numbered objective lists for 220-1202 and N10-009. The owner's doc
-  gives only domain topics for them, and the quiz repos' short labels aren't
-  CompTIA's wording.
+  30 September 2026.
 
 ## Known open issues (owner told 29–30 Sept 2026, not yet fixed)
 
@@ -84,8 +89,10 @@ objectives they missed, and gets a day-by-day plan saved in `localStorage`.
 ## Checks: `verify/` (needs Playwright; not needed to run the site)
 
 - `node verify/page.mjs` drives the page and checks:
-  - every CySA+ and Security+ domain, weight, title and checklist word against
-    `verify/objectives-2026-09-29.md`, the doc copied verbatim
+  - every CySA+, Security+, A+ Core 2 and Network+ domain, weight, title and
+    checklist word against the doc copied verbatim
+    (`verify/objectives-2026-09-29.md`, `verify/objectives-core2-netplus-2026-09-30.md`)
+  - that no exam in the dropdown is still disabled
   - CySA+ titles, kinds and `unconfirmedIds` against the score report, and
     pasting the report's own text, which must match exactly its 13 numbers
   - the name, in the header and the page title
@@ -97,7 +104,7 @@ objectives they missed, and gets a day-by-day plan saved in `localStorage`.
   - save and resume, and that an old CS0-003 plan is not reopened
   - the full footer on every step
   - no script errors
-- `node verify/plant.mjs` plants 19 mistakes, one at a time, and every one
+- `node verify/plant.mjs` plants 25 mistakes, one at a time, and every one
   must be caught.
 - `node verify/contrast.mjs [exam]` runs the painted-pixel AAA sweep. It exits
   1 while the palette issue above stands.

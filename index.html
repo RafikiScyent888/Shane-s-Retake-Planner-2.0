@@ -473,8 +473,8 @@
       <label for="s-exam">Exam</label>
       <select id="s-exam">
         <option value="aplus-1201" selected>CompTIA A+ Core 1 (220-1201)</option>
-        <option value="aplus-1202" disabled>CompTIA A+ Core 2 (220-1202) — coming soon</option>
-        <option value="netplus" disabled>CompTIA Network+ — coming soon</option>
+        <option value="aplus-1202">CompTIA A+ Core 2 (220-1202)</option>
+        <option value="netplus-v9">CompTIA Network+ (N10-009)</option>
         <option value="secplus-v8">CompTIA Security+ (V8)</option>
         <option value="cysa-v4">CompTIA CySA+ (CS0-004)</option>
       </select>
@@ -992,6 +992,206 @@ const EXAM_DATA = {
         tip:"Know how you would tell whether an awareness programme is working, not just that it exists.",
         checklist:["Security education","Security awareness"]}
     ]
+  },
+
+  /* ============================================================
+     CONTENT BANK — CompTIA A+ Core 2 (220-1202), V15
+     New, 30 September 2026. Domains, weights, objective titles and
+     every checklist item are taken from the owner's "All updated
+     Objectives" document, which the owner copied from CompTIA's
+     Core 2 V15 page. Titles are the document's topic labels.
+     NUMBERS UNCONFIRMED: the document gives no numbers. 1.1, 1.2...
+     are assigned here in its order and have NOT been checked against
+     CompTIA's official objectives PDF or a real score report. When
+     confirmed, fix any that differ and set numbersUnconfirmed to
+     false.
+     "roi", "confuse", "kind" and "tip" are instructor judgment
+     calls — review and edit these before relying on them.
+     ============================================================ */
+  "aplus-1202": {
+    name: "CompTIA A+ Core 2 (220-1202)",
+    numbersUnconfirmed: true,
+    domains: [
+      {id:"1.0", name:"Operating Systems", weight:28},
+      {id:"2.0", name:"Security", weight:28},
+      {id:"3.0", name:"Software Troubleshooting", weight:23},
+      {id:"4.0", name:"Operational Procedures", weight:21}
+    ],
+    objectives: [
+      {id:"1.1", domain:"1.0", title:"OS installation", roi:true, confuse:true, kind:"scenario",
+        tip:"For each operating system, know what the install asks of you and what it needs first — then practise choosing between a clean install and an upgrade for a given machine.",
+        checklist:["Windows","macOS","Linux","Mobile operating systems"]},
+      {id:"1.2", domain:"1.0", title:"Windows tools", roi:true, confuse:true, kind:"scenario",
+        tip:"Pick the tool by the job. Task Manager shows what is running now, Command Prompt does it by typing, and Disk Management changes the drives themselves.",
+        checklist:["Task Manager","Command Prompt","Disk Management"]},
+      {id:"1.3", domain:"1.0", title:"File systems", roi:false, confuse:true, kind:"recall",
+        tip:"For every file system, say which operating system reads it and what it can't do. Keep updates, which patch what you have, apart from upgrades, which move you to a new version.",
+        checklist:["File systems","Updates","OS upgrades"]},
+
+      {id:"2.1", domain:"2.0", title:"Security measures", roi:true, confuse:true, kind:"recall",
+        tip:"Sort each measure by what it protects: encryption protects the data itself, access controls decide who gets in, and wireless security protocols protect the link.",
+        checklist:["Encryption","Access controls","Wireless security protocols"]},
+      {id:"2.2", domain:"2.0", title:"Malware prevention", roi:true, confuse:false, kind:"scenario",
+        tip:"Learn the removal steps as an order, not a list. Removing malware without isolating the machine first, or without preventing a repeat, leaves the job half done.",
+        checklist:["Detecting malware threats","Removing malware threats","Preventing malware threats"]},
+
+      {id:"3.1", domain:"3.0", title:"OS issues", roi:true, confuse:false, kind:"scenario",
+        tip:"Start from the symptom and ask whether it is the operating system or one application. The fix is different, and so is the first thing to check.",
+        checklist:["Diagnosing problems with operating systems","Resolving problems with operating systems","Diagnosing and resolving problems with applications"]},
+      {id:"3.2", domain:"3.0", title:"Mobile troubleshooting", roi:false, confuse:false, kind:"scenario",
+        tip:"Sort the complaint first: connectivity, an app, or performance. Each points to a different first check.",
+        checklist:["Connectivity issues","App issues","Performance issues"]},
+      {id:"3.3", domain:"3.0", title:"Security concerns", roi:false, confuse:true, kind:"scenario",
+        tip:"Unauthorized access and malware can look alike on screen. Look for the detail that tells you which one it is before you pick a fix.",
+        checklist:["Unauthorized access","Malware issues"]},
+
+      {id:"4.1", domain:"4.0", title:"Documentation", roi:false, confuse:false, kind:"recall",
+        tip:"For every change, know what gets written down before, during and after — and why the next technician needs it.",
+        checklist:["Best practices for system changes","Best practices for documentation"]},
+      {id:"4.2", domain:"4.0", title:"Safety and communication", roi:false, confuse:false, kind:"scenario",
+        tip:"Practise both halves out loud: the safety step you would take before touching the equipment, and what you would say to the customer while you do it.",
+        checklist:["Safety protocols","Communicating effectively"]},
+      {id:"4.3", domain:"4.0", title:"Backup and recovery", roi:true, confuse:true, kind:"recall",
+        tip:"A backup is only proved by a restore. For each method, know what it copies, how long a restore takes, and how you would check it worked.",
+        checklist:["Workstation backups","Recovery processes"]}
+    ]
+  },
+
+  /* ============================================================
+     CONTENT BANK — CompTIA Network+ (N10-009), V9
+     New, 30 September 2026. Domains, weights, objective titles and
+     every checklist item are taken from the owner's "All updated
+     Objectives" document, which the owner copied from CompTIA's
+     Network+ page. Titles are the document's topic labels.
+     NUMBERS UNCONFIRMED: the document gives no numbers. 1.1, 1.2...
+     are assigned here in its order and have NOT been checked against
+     CompTIA's official objectives PDF or a real score report. The
+     document lists 34 topics; CompTIA's numbered list may group them
+     differently. When confirmed, fix any that differ and set
+     numbersUnconfirmed to false.
+     Keyed "netplus-v9", so a future version never reopens a plan
+     saved against these numbers.
+     "roi", "confuse", "kind" and "tip" are instructor judgment
+     calls — review and edit these before relying on them.
+     ============================================================ */
+  "netplus-v9": {
+    name: "CompTIA Network+ (N10-009)",
+    numbersUnconfirmed: true,
+    domains: [
+      {id:"1.0", name:"Networking Concepts", weight:23},
+      {id:"2.0", name:"Network Implementation", weight:20},
+      {id:"3.0", name:"Network Operations", weight:19},
+      {id:"4.0", name:"Network Security", weight:14},
+      {id:"5.0", name:"Network Troubleshooting", weight:24}
+    ],
+    objectives: [
+      {id:"1.1", domain:"1.0", title:"OSI model layers", roi:true, confuse:true, kind:"recall",
+        tip:"Learn the seven layers in order, then practise placing a device, a protocol or a symptom on its layer. Placing is what the questions ask.",
+        checklist:["Physical","Data link","Network","Transport","Session","Presentation","Application"]},
+      {id:"1.2", domain:"1.0", title:"Networking appliances", roi:false, confuse:true, kind:"recall",
+        tip:"For each appliance, say what decision it makes about traffic and at which layer. That tells a switch from a router, and a firewall from an IDS/IPS.",
+        checklist:["Routers","Switches","Firewalls","IDS/IPS","Load balancers","Proxies","NAS","SAN","Wireless devices"]},
+      {id:"1.3", domain:"1.0", title:"Cloud concepts", roi:false, confuse:true, kind:"recall",
+        tip:"Keep the two model sets apart: deployment models say where the cloud lives and who shares it; service models say how much of the stack you manage.",
+        checklist:["NFV","VPC","Network security groups","Cloud gateways","Deployment models: public, private, hybrid","Service models: SaaS, IaaS, PaaS"]},
+      {id:"1.4", domain:"1.0", title:"Ports and protocols", roi:true, confuse:true, kind:"recall",
+        tip:"Make one flashcard per protocol with its port and whether it is the secure version. The insecure-and-secure pairs are where people slip.",
+        checklist:["FTP","SFTP","SSH","Telnet","SMTP","DNS","DHCP","HTTP","HTTPS","SNMP","LDAP","RDP","SIP"]},
+      {id:"1.5", domain:"1.0", title:"Traffic types", roi:false, confuse:true, kind:"recall",
+        tip:"Ask one question of each type: who receives it? One host, a group, the nearest of many, or everyone on the segment.",
+        checklist:["Unicast","Multicast","Anycast","Broadcast"]},
+      {id:"1.6", domain:"1.0", title:"Transmission media", roi:false, confuse:false, kind:"recall",
+        tip:"For each medium, know roughly how far it reaches and what interferes with it. Then choose one for a given room or run.",
+        checklist:["Wireless: 802.11, cellular, satellite","Wired: fiber, coaxial, DAC"]},
+      {id:"1.7", domain:"1.0", title:"Transceivers and connectors", roi:false, confuse:true, kind:"recall",
+        tip:"Sort the connectors by the cable they end: fiber, copper twisted pair or coaxial. Then learn to tell the fiber ones apart by sight.",
+        checklist:["SC","LC","ST","MPO","RJ11","RJ45","F-type","BNC"]},
+      {id:"1.8", domain:"1.0", title:"Network topologies", roi:false, confuse:false, kind:"recall",
+        tip:"Sketch each one. For every sketch, say what happens when one link or one device fails.",
+        checklist:["Mesh","Hybrid","Star/hub and spoke","Spine and leaf","Point-to-point","Three-tier","Collapsed core"]},
+      {id:"1.9", domain:"1.0", title:"IPv4 addressing", roi:true, confuse:true, kind:"scenario",
+        tip:"Subnetting is a skill, not a fact — practise it on paper until it is quick. Know on sight which addresses are private, APIPA or loopback.",
+        checklist:["Public vs. private","APIPA","RFC1918","Loopback","Subnetting: VLSM, CIDR","Address classes: A, B, C, D, E"]},
+
+      {id:"2.1", domain:"2.0", title:"Routing technologies", roi:true, confuse:true, kind:"scenario",
+        tip:"Know how a router picks one route when it has several, and where NAT and PAT change the addresses on the way out.",
+        checklist:["Static routing","Dynamic routing: BGP, EIGRP, OSPF","Route selection","NAT","PAT","FHRP","VIP","Subinterfaces"]},
+      {id:"2.2", domain:"2.0", title:"Switching technologies", roi:true, confuse:true, kind:"scenario",
+        tip:"Follow one frame through a switch: which VLAN it belongs to, whether spanning tree lets that port forward, and whether its size fits the MTU.",
+        checklist:["VLANs","Interface configuration","Spanning tree","MTU","Jumbo frames"]},
+      {id:"2.3", domain:"2.0", title:"Wireless devices", roi:true, confuse:false, kind:"scenario",
+        tip:"Plan one small wireless network start to finish: channels, SSID, encryption, a guest network and where the access points go.",
+        checklist:["Channels","Frequency options","SSID","Network types","Encryption","Guest networks","Authentication","Antennas","Access points"]},
+      {id:"2.4", domain:"2.0", title:"Physical installations", roi:false, confuse:false, kind:"recall",
+        tip:"Walk a real room in your head: where the equipment goes, how it is powered, and what heat, dust or water could do to it.",
+        checklist:["Installation implications","Power considerations","Environmental factors"]},
+
+      {id:"3.1", domain:"3.0", title:"Documentation", roi:false, confuse:true, kind:"recall",
+        tip:"For each document, say who uses it and when. A physical diagram shows where things are; a logical one shows how traffic flows.",
+        checklist:["Physical vs. logical diagrams","Rack diagrams","Cable maps","Network diagrams","Asset inventory","IPAM","SLA","Wireless surveys"]},
+      {id:"3.2", domain:"3.0", title:"Life-cycle management", roi:false, confuse:false, kind:"recall",
+        tip:"Put the terms on one timeline, from software that is still supported to hardware that is being decommissioned.",
+        checklist:["EOL","EOS","Software management","Decommissioning"]},
+      {id:"3.3", domain:"3.0", title:"Change management", roi:false, confuse:false, kind:"recall",
+        tip:"Follow one change request from being raised to being closed, and say what is recorded at each step.",
+        checklist:["Request process tracking"]},
+      {id:"3.4", domain:"3.0", title:"Configuration management", roi:false, confuse:true, kind:"recall",
+        tip:"Keep the three apart: the production configuration is what is running now, the backup is a saved copy, and the baseline is what it should look like.",
+        checklist:["Production configurations","Backup configurations","Baseline configurations"]},
+      {id:"3.5", domain:"3.0", title:"Network monitoring", roi:true, confuse:false, kind:"scenario",
+        tip:"Pick the monitoring source by the question: is the link busy, who is talking to whom, or what exactly is inside the packets?",
+        checklist:["SNMP","Flow data","Packet capture","Baseline metrics","Log aggregation","API integration","Port mirroring"]},
+      {id:"3.6", domain:"3.0", title:"Disaster recovery", roi:true, confuse:true, kind:"recall",
+        tip:"RPO, RTO, MTTR and MTBF are the set people mix up. Write each as a plain question — how much data can we lose, how long can we be down, how long does a fix take, how long between failures.",
+        checklist:["RPO","RTO","MTTR","MTBF","Cold/warm/hot sites","Active-active/passive","Testing"]},
+      {id:"3.7", domain:"3.0", title:"Network services", roi:true, confuse:true, kind:"recall",
+        tip:"For each service, say what a device would be missing without it: an address, a name lookup, or the right time.",
+        checklist:["DHCP","SLAAC","DNS","NTP","PTP","NTS"]},
+      {id:"3.8", domain:"3.0", title:"Access and management", roi:false, confuse:false, kind:"recall",
+        tip:"For each method, say whether it works when the network itself is down. That is what separates in-band from out-of-band access.",
+        checklist:["VPNs","SSH","GUI","API","Console"]},
+
+      {id:"4.1", domain:"4.0", title:"Logical security", roi:true, confuse:true, kind:"recall",
+        tip:"This is an acronym wall. Sort each item into who you are, what you're allowed, or how the data is protected, before learning any detail.",
+        checklist:["Encryption: data in transit/rest","PKI","IAM","MFA","SSO","RADIUS","LDAP","SAML","TACACS+","Time-based authentication","Authorization","Least privilege","Role-based access control","Geofencing"]},
+      {id:"4.2", domain:"4.0", title:"Physical security", roi:false, confuse:false, kind:"recall",
+        tip:"For each, say whether it stops someone or only records them.",
+        checklist:["Cameras","Locks"]},
+      {id:"4.3", domain:"4.0", title:"Deception technologies", roi:false, confuse:false, kind:"recall",
+        tip:"One is a single decoy, the other a whole decoy network. Know what each teaches you about an attacker.",
+        checklist:["Honeypot","Honeynet"]},
+      {id:"4.4", domain:"4.0", title:"Security terminology", roi:false, confuse:true, kind:"recall",
+        tip:"Put the words in one sentence: a threat uses an exploit against a vulnerability, and the risk is how likely and how bad that is.",
+        checklist:["Risk","Vulnerability","Exploit","Threat","CIA triad"]},
+      {id:"4.5", domain:"4.0", title:"Audits and compliance", roi:false, confuse:false, kind:"recall",
+        tip:"For each, know what kind of data it covers and where that data is allowed to live.",
+        checklist:["Data locality","PCI DSS","GDPR"]},
+      {id:"4.6", domain:"4.0", title:"Network segmentation", roi:false, confuse:false, kind:"scenario",
+        tip:"For each group of devices, say why it gets its own segment and what it must not be able to reach.",
+        checklist:["IoT","IIoT","SCADA","ICS","OT","Guest","BYOD"]},
+      {id:"4.7", domain:"4.0", title:"Types of attacks", roi:true, confuse:true, kind:"scenario",
+        tip:"Work from the symptom back to the attack. Several of these look alike on a network, so find the detail that tells them apart.",
+        checklist:["DoS/DDoS","VLAN hopping","MAC flooding","ARP poisoning/spoofing","DNS poisoning/spoofing","Rogue devices/services","Evil twin","On-path attack","Social engineering: phishing, dumpster diving, shoulder surfing, tailgating"]},
+      {id:"4.8", domain:"4.0", title:"Security features and defense", roi:true, confuse:false, kind:"scenario",
+        tip:"Pair each defence with the attack it stops. If you cannot name the attack, you do not yet know why the defence is there.",
+        checklist:["Device hardening","NAC","Key management","ACL","URL/content filtering","Trusted vs. untrusted zones","Screened subnet"]},
+
+      {id:"5.1", domain:"5.0", title:"Troubleshooting methodology", roi:true, confuse:true, kind:"recall",
+        tip:"Learn the steps as an order and practise naming the next step in a scenario. Documenting findings comes last, and it is never skipped.",
+        checklist:["Identifying the problem","Establishing a theory","Testing","Planning and implementing a solution","Verifying functionality","Documenting findings"]},
+      {id:"5.2", domain:"5.0", title:"Cabling and physical interface issues", roi:true, confuse:true, kind:"scenario",
+        tip:"Start at the physical layer. Read what the interface counters and port status tell you before you touch any setting.",
+        checklist:["Cable issues: incorrect type, signal degradation, improper termination, TX/RX transposed","Interface issues: increasing counters, port status","Hardware issues: PoE, transceiver mismatch, signal strength"]},
+      {id:"5.3", domain:"5.0", title:"Network services issues", roi:true, confuse:true, kind:"scenario",
+        tip:"Sort the symptom first: can the device get an address, reach its own segment, or leave it? Each answer points to a different cause below.",
+        checklist:["Switching issues: STP, VLAN assignment, ACLs","Routing issues: routing table and default routes","Address pool exhaustion","Incorrect gateway/IP/subnet mask"]},
+      {id:"5.4", domain:"5.0", title:"Performance issues", roi:true, confuse:false, kind:"scenario",
+        tip:"Name the symptom exactly — slow, delayed, missing or dropping — before you guess a cause.",
+        checklist:["Congestion","Latency","Packet loss","Wireless interference"]},
+      {id:"5.5", domain:"5.0", title:"Tools and protocols", roi:true, confuse:true, kind:"scenario",
+        tip:"Pick the tool by the question: is the cable good, is the air busy, or what is in the traffic? Know which command-line tool answers which.",
+        checklist:["Protocol analyzers","Command line tools","Cable testers","Wi-Fi analyzers"]}
+    ]
   }
 };
 
@@ -999,8 +1199,9 @@ const EXAM_DATA = {
 // the student an extra question, since they already enter their score.
 const PASSING_SCORES = {
   "aplus-1201": 675,
+  // A+ Core 2 700 and Network+ 725: confirmed by the owner (30 September 2026).
   "aplus-1202": 700,
-  "netplus": 725,
+  "netplus-v9": 725,
   // Security+ V8: 750, confirmed by the owner (30 September 2026).
   // CySA+ CS0-004: 750, as printed on a real CS0-004 score report.
   "secplus-v8": 750,

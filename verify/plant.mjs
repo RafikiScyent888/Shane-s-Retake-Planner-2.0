@@ -31,6 +31,12 @@ const PLANTS = {
   'pasted score report not read': ['raw.match(/\\d\\.\\d/g)', 'raw.match(/^\\d\\.\\d/gm)'],
   'header name reverted': ['<div class="brand">Shane&rsquo;s Retake Planner</div>', '<div class="brand">RETAKE OPS PLANNER</div>'],
   'page title reverted': ['<title>Shane&rsquo;s Retake Planner — CWP</title>', '<title>Retake Ops Planner — CWP</title>'],
+  'Core 2 left disabled': ['<option value="aplus-1202">', '<option value="aplus-1202" disabled>'],
+  'Core 2 pass mark wrong': ['  "aplus-1202": 700,', '  "aplus-1202": 675,'],
+  'Network+ weight wrong': ['{id:"5.0", name:"Network Troubleshooting", weight:24}', '{id:"5.0", name:"Network Troubleshooting", weight:22}'],
+  'Network+ checklist word not in the doc': ['checklist:["Unicast","Multicast","Anycast","Broadcast"]', 'checklist:["Unicast","Multicast","Anycast","Broadcast","Geocast"]'],
+  'Network+ objective dropped': [between('      {id:"3.3", domain:"3.0", title:"Change management"', '      {id:"3.4", domain:"3.0", title:"Configuration management"'), ''],
+  'Network+ caution switched off': ['name: "CompTIA Network+ (N10-009)",\n    numbersUnconfirmed: true,', 'name: "CompTIA Network+ (N10-009)",\n    numbersUnconfirmed: false,'],
   'footer removed': [between('<footer class="site-footer">', '<div id="storage-warning"'), ''],
   'footer in the short form': ['Cyber Warrior Program &mdash; built by an instructor, for students, to make certification study more interactive. For educational purposes only.', 'For educational purposes only.'],
 };
