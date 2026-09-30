@@ -7,8 +7,12 @@ full footer, royal palette, and show the objectives first.
 
 ## What this is
 
-**Retake Ops Planner**: a single `index.html`, plain HTML/CSS/vanilla JS, no
-build step. The owner uploaded it on 29 September 2026. It was first delivered
+**Shane's Retake Planner**: a single `index.html`, plain HTML/CSS/vanilla JS,
+no build step. The owner uploaded it on 29 September 2026 as "Retake Ops
+Planner". On 30 September they renamed it after Shane, the original owner of
+the planner, to give him the credit: "he is the original owner of this and I
+am going to give him the credit because it is due to him." Keep the name, in
+both the page title and the header. It was first delivered
 as `Retake_Planner.html`, then became `index.html` here so that GitHub Pages
 serves it at https://rafikiscyent888.github.io/Shane-s-Retake-Planner-2.0/.
 
@@ -20,18 +24,27 @@ objectives they missed, and gets a day-by-day plan saved in `localStorage`.
 | Key | Exam | Source |
 |---|---|---|
 | `aplus-1201` | A+ Core 1 (220-1201) | Came with the upload. It already matched the owner's doc and has not been changed. It is the only bank with warm-up `recall` questions. |
-| `cysa-v4` | CySA+ (CS0-004) | The owner's Google Doc, 29 Sept 2026. Replaced the CS0-003 bank. |
+| `cysa-v4` | CySA+ (CS0-004) | The owner's Google Doc, 29 Sept 2026, with 13 titles and numbers confirmed by a real score report on 30 Sept (`verify/cysa-score-report-2026-09-30.md`). Replaced the CS0-003 bank, which the owner confirmed should go. |
 | `secplus-v8` | Security+ (V8) | The owner's Google Doc, 29 Sept 2026. New. |
 
 - **Objectives come from the owner's Google Doc "All updated Objectives"**
-  (see the global CLAUDE.md). Re-read it before changing a bank. Titles,
-  domain names, weights and checklist items are in the doc's own wording. The
-  owner chose "your doc's wording only" for checklists.
-- **The numbers are UNCONFIRMED.** The doc gives none. The owner chose "number
-  in doc order". Both banks carry `numbersUnconfirmed: true`, which shows
-  students a "Check the titles, not just the numbers" note on step 2. Once the
-  numbers are checked against CompTIA's official PDF or a real score report,
-  fix any that differ and set the flag to `false`.
+  (see the global CLAUDE.md). Re-read it before changing a bank. Domain names,
+  weights and checklist items are in the doc's own wording. The owner chose
+  "your doc's wording only" for checklists.
+- **Numbering.** The doc gives no numbers, so the owner chose "number in doc
+  order".
+  - **CySA+:** the owner then supplied a real CS0-004 score report ("Make the
+    new objectives match up"). It confirmed that order for 1.1–1.4, 2.1–2.4,
+    3.1–3.3 and 4.1–4.2, and its titles replaced the doc's for those 13.
+    The titles are CompTIA's, with the leading "Given a scenario, " dropped as
+    in the A+ bank; those objectives are `kind:"scenario"`, and page.mjs
+    enforces both. 1.5 and 1.6 were not on the report. They keep the doc's
+    order and wording and are listed in `unconfirmedIds`, so the step 2 note
+    names just those two. When confirmed, fix any that differ and empty the
+    list.
+  - **Security+ V8:** `numbersUnconfirmed: true`. The whole-bank "Check the
+    titles, not just the numbers" note stays until a V8 score report or the
+    official PDF confirms the numbering.
 - **The keys carry the version on purpose.** A saved plan is stored as
   `retakePlanner_v1_<key>`, and resuming looks objectives up by number. Under
   the old `cysa` key, a CS0-003 plan on a student's device would have reopened
@@ -40,10 +53,10 @@ objectives they missed, and gets a day-by-day plan saved in `localStorage`.
 - `roi`, `confuse`, `kind` and `tip` are instructor judgement calls, written by
   the assistant for the owner to review. The two AI objectives (CySA+ 1.6,
   Security+ 2.5) carry neither flag, so they get no reinforcement days.
-- **`PASSING_SCORES`:** Security+ V8 is set to 750, carried over from SY0-701.
-  That is an ASSUMPTION until CompTIA publishes the V8 score. CySA+ is 750.
+- **`PASSING_SCORES`:** Security+ V8 is 750, confirmed by the owner on
+  30 September 2026. CySA+ is 750, as printed on the CS0-004 score report.
 
-## Known open issues (owner told 29 Sept 2026, not yet fixed)
+## Known open issues (owner told 29–30 Sept 2026, not yet fixed)
 
 - **AAA contrast fails across the inherited palette,** and did before the
   objectives update. Measured by `verify/contrast.mjs`:
@@ -64,6 +77,9 @@ objectives they missed, and gets a day-by-day plan saved in `localStorage`.
 - `node verify/page.mjs` drives the page and checks:
   - every CySA+ and Security+ domain, weight, title and checklist word against
     `verify/objectives-2026-09-29.md`, the doc copied verbatim
+  - CySA+ titles, kinds and `unconfirmedIds` against the score report, and
+    pasting the report's own text, which must match exactly its 13 numbers
+  - the name, in the header and the page title
   - the dropdown
   - paste matching, including a stray number
   - the manual list and the caution note
@@ -72,7 +88,7 @@ objectives they missed, and gets a day-by-day plan saved in `localStorage`.
   - save and resume, and that an old CS0-003 plan is not reopened
   - the full footer on every step
   - no script errors
-- `node verify/plant.mjs` plants 12 mistakes, one at a time, and every one
+- `node verify/plant.mjs` plants 19 mistakes, one at a time, and every one
   must be caught.
 - `node verify/contrast.mjs [exam]` runs the painted-pixel AAA sweep. It exits
   1 while the palette issue above stands.

@@ -3,6 +3,9 @@
 // Security+ and CySA+ sections of "All updated Objectives" (Google Doc
 // 1C9MhVjNyXHJ_i3mPthaBNRmB3A0_sG8UJmzv_H3Lddo), copied verbatim on
 // 29 September 2026. If the doc changes, replace that file first.
+// cysa-score-report-2026-09-30.md is the objective list from a real CompTIA
+// CySA+ score report. Where it has a number, the CySA+ title and kind are
+// checked against CompTIA's wording rather than the doc's.
 //   node verify/page.mjs [file]     file defaults to index.html
 // Needs Playwright. Not needed to run the site. Exit 1 on any failure.
 // node verify/plant.mjs proves each check can fail.
@@ -30,13 +33,37 @@ for (const line of doc.split('\n')) {
   else if ((m = line.match(/^\s+- \*\*(.+?):\*\* (.+?)\s*$/))) dom.objs.push({ title: m[1], desc: m[2] });
 }
 
+// ---- the score report, parsed: id -> CompTIA's title ----
+const REPORT = {};
+for (const line of fs.readFileSync(path.join(HERE, 'cysa-score-report-2026-09-30.md'), 'utf8').split('\n')) {
+  const m = line.match(/^- (\d\.\d) (.+?)\.\s*$/);
+  if (m) REPORT[m[1]] = m[2];
+}
+// The planner drops the leading "Given a scenario, " (as the A+ titles do)
+// and marks those objectives kind:"scenario".
+const reportTitle = t => { const u = t.replace(/^Given a scenario, /, ''); return u[0].toUpperCase() + u.slice(1); };
+const reportKind = t => /^Given a scenario, /.test(t) ? 'scenario' : 'recall';
+
+// What a student pastes: the report's own text, wrapped lines and all.
+const REPORT_PASTE = `PASSING SCORE: 750
+CANDIDATE SCORE: 612
+PASS/FAIL: Fail
+Before attempting to retake the CompTIA Cybersecurity Analyst (CySA+) Certification Exam, please review the CompTIA Retake Policy below.
+The CompTIA Cybersecurity Analyst (CySA+) Certification Exam has a scaled score between 100 and 900.
+You incorrectly answered one or more questions in the following objective areas:
+` + Object.entries(REPORT).map(([id, t]) => {
+  const words = `${id} ${t}.`.split(' '); const out = []; let line = '•  ';
+  for (const w of words) { if ((line + w).length > 72) { out.push(line.trimEnd()); line = '        '; } line += w + ' '; }
+  out.push(line.trimEnd()); return out.join('\n');
+}).join('\n');
+
 // "Doc wording only": every word of a checklist item must come from that
 // objective's own title or description, allowing plain inflection and a
 // few joining words.
 const GLUE = new Set(['on', 'in', 'that', 'the', 'to', 'of', 'and', 'across', 'how', 'metric', 'target', 'with']);
 const stem = w => w.toLowerCase().replace(/[^a-z0-9&+-]/g, '').replace(/(ing|es|ed|s|e)$/, '');
 function foreignWords(item, o) {
-  const src = (o.title + ' ' + o.desc).split(/[\s,():]+/).map(stem).filter(Boolean);
+  const src = (o.title + ' ' + o.desc + ' ' + (o.official || '')).split(/[\s,():]+/).map(stem).filter(Boolean);
   const same = (a, b) => a === b || (Math.min(a.length, b.length) >= 4 && (a.startsWith(b) || b.startsWith(a)));
   return item.split(/[\s,():]+/).filter(w => w && !GLUE.has(w.toLowerCase()) && !src.some(x => same(x, stem(w))));
 }
@@ -72,7 +99,11 @@ for (const id of ['cysa-v4', 'secplus-v8']) {
   const bank = E[id], want = DOC[id];
   ok(bank, `${id}: bank missing`);
   if (!bank || !want) continue;
-  ok(bank.numbersUnconfirmed === true, `${id}: numbersUnconfirmed not set`);
+  if (id === 'cysa-v4') {
+    const notOnReport = bank.objectives.map(o => o.id).filter(x => !(x in REPORT));
+    ok(bank.numbersUnconfirmed !== true, `${id}: whole bank still marked unconfirmed although the score report confirms ${Object.keys(REPORT).length}`);
+    ok(JSON.stringify(bank.unconfirmedIds || []) === JSON.stringify(notOnReport), `${id}: unconfirmedIds ${JSON.stringify(bank.unconfirmedIds)} should be exactly the ids not on the report, ${JSON.stringify(notOnReport)}`);
+  } else ok(bank.numbersUnconfirmed === true, `${id}: numbersUnconfirmed not set`);
   ok(bank.domains.length === want.length, `${id}: ${bank.domains.length} domains, doc has ${want.length}`);
   ok(bank.objectives.length === want.reduce((a, d) => a + d.objs.length, 0), `${id}: objective count differs from doc`);
   want.forEach((d, i) => {
@@ -84,7 +115,11 @@ for (const id of ['cysa-v4', 'secplus-v8']) {
       const b = bo[j];
       if (!b) return;
       ok(b.id === `${i + 1}.${j + 1}`, `${id}: expected ${i + 1}.${j + 1}, got ${b.id}`);
-      ok(b.title === o.title, `${id} ${b.id}: title "${b.title}" is not the doc's "${o.title}"`);
+      if (id === 'cysa-v4' && REPORT[b.id]) {
+        o.official = REPORT[b.id];
+        ok(b.title === reportTitle(REPORT[b.id]), `${id} ${b.id}: title "${b.title}" is not the score report's "${reportTitle(REPORT[b.id])}"`);
+        ok(b.kind === reportKind(REPORT[b.id]), `${id} ${b.id}: kind "${b.kind}", but the score report says ${reportKind(REPORT[b.id])}`);
+      } else ok(b.title === o.title, `${id} ${b.id}: title "${b.title}" is not the doc's "${o.title}"`);
       ok(Array.isArray(b.checklist) && b.checklist.length >= 2, `${id} ${b.id}: checklist too short`);
       ok(typeof b.tip === 'string' && b.tip.length > 20, `${id} ${b.id}: tip missing`);
       ok(b.kind === 'recall' || b.kind === 'scenario', `${id} ${b.id}: bad kind`);
@@ -98,6 +133,12 @@ for (const id of ['cysa-v4', 'secplus-v8']) {
   ok(pass === 750, `${id}: passing score ${pass}`);
 }
 ok(!('cysa' in E), 'old "cysa" (CS0-003) bank still present');
+
+// ---- the name: Shane's Retake Planner ----
+const NAME = 'Shane\u2019s Retake Planner';
+const brand = await page.evaluate(() => { const b = document.querySelector('header.top .brand'); return b && b.offsetParent !== null ? b.textContent.trim() : null; });
+ok(brand === NAME, `header name is ${JSON.stringify(brand)}, want "${NAME}"`);
+ok(await page.title() === `${NAME} — CWP`, `page title is "${await page.title()}"`);
 
 // ---- dropdown ----
 const opts = await page.$$eval('#s-exam option', os => os.map(o => ({ v: o.value, t: o.textContent.trim(), d: o.disabled })));
@@ -125,8 +166,12 @@ for (const id of ['aplus-1201', 'cysa-v4', 'secplus-v8']) try {
   await start(id);
   const bank = E[id];
   const caution = (await page.textContent('#numbers-caution')).trim();
-  if (bank.numbersUnconfirmed) ok(/Check the titles/.test(caution) && caution.includes(bank.name), `${id}: caution not shown`);
-  else ok(caution === '', `${id}: caution shown on a confirmed exam`);
+  const some = bank.unconfirmedIds || [];
+  if (bank.numbersUnconfirmed) ok(/Check the titles, not just the numbers/.test(caution) && caution.includes(bank.name), `${id}: caution not shown`);
+  else if (some.length) {
+    const listed = some.length > 1 ? some.slice(0, -1).join(', ') + ' and ' + some[some.length - 1] : some[0];
+    ok(caution.startsWith(`Check the titles for ${listed}.`) && caution.includes('match a real CompTIA score report'), `${id}: caution should name ${listed} only, got ${JSON.stringify(caution.slice(0, 90))}`);
+  } else ok(caution === '', `${id}: caution shown on a confirmed exam`);
 
   // headings and rows as rendered
   const heads = await page.$$eval('#manual-adjust .domain-block h4', hs => hs.map(h => h.textContent.trim()));
@@ -142,9 +187,23 @@ for (const id of ['aplus-1201', 'cysa-v4', 'secplus-v8']) try {
   const unmatched = await page.$$eval('#match-results .chip.unmatched', cs => cs.map(c => c.textContent));
   ok(matched.length === bank.objectives.length, `${id}: matched ${matched.length}/${bank.objectives.length}`);
   ok(unmatched.join() === '9.9', `${id}: unmatched ${unmatched.join()}`);
+
+  // the real score report's text, pasted as a student would paste it
+  if (id === 'cysa-v4') {
+    await page.evaluate(() => { state.selectedIds.clear(); });
+    await page.fill('#s-paste', REPORT_PASTE);
+    await page.click('button:has-text("Match objectives")');
+    const got = await page.$$eval('#match-results .chip:not(.unmatched)', cs => cs.map(c => c.textContent));
+    const odd = await page.$$eval('#match-results .chip.unmatched', cs => cs.map(c => c.textContent));
+    ok(got.join() === Object.keys(REPORT).join() && !odd.length, `${id}: pasting the score report matched [${got}] and couldn't match [${odd}]`);
+    const tickedTitles = await page.$$eval('#manual-adjust .obj-check', ls => ls.filter(l => l.querySelector('input').checked).map(l => l.querySelector('input').value));
+    ok(tickedTitles.join() === Object.keys(REPORT).join(), `${id}: after pasting the report, ticked ${tickedTitles}`);
+    await page.fill('#s-paste', bank.objectives.map(o => o.id).join(' '));
+    await page.click('button:has-text("Match objectives")');
+  }
   const ticked = await page.$$eval('#manual-adjust .obj-check input:checked', is => is.length);
   ok(ticked === bank.objectives.length, `${id}: ${ticked} ticked after matching`);
-  ok(/Check the titles/.test(await page.textContent('#numbers-caution')) === !!bank.numbersUnconfirmed, `${id}: caution lost after matching`);
+  ok(/Check the titles/.test(await page.textContent('#numbers-caution')) === !!(bank.numbersUnconfirmed || (bank.unconfirmedIds || []).length), `${id}: caution lost after matching`);
 
   await footer(`${id} step 2`);
   await page.click('#continue-step3');

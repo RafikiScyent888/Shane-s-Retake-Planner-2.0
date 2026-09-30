@@ -10,19 +10,27 @@ import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const base = fs.readFileSync(path.join(HERE, '..', 'index.html'), 'utf8');
-const between = (a, b) => base.slice(base.indexOf(a), base.indexOf(b));
+// Empty (so reported STALE) unless both markers are still there, in order.
+const between = (a, b) => { const i = base.indexOf(a), j = base.indexOf(b); return i >= 0 && j > i ? base.slice(i, j) : ''; };
 
 const PLANTS = {
   'title off by one word': ['title:"Analyze indicators of malicious activity"', 'title:"Analyze indicators of malicious activities"'],
   'domain weight wrong': ['{id:"1.0", name:"Security Operations", weight:34}', '{id:"1.0", name:"Security Operations", weight:33}'],
   'checklist word not in the doc': ['checklist:["SIEM","EDR",', 'checklist:["SIEM","EDR","SPF, DKIM and DMARC",'],
   'objective renumbered': ['{id:"4.1", domain:"4.0", title:"Apply common', '{id:"4.9", domain:"4.0", title:"Apply common'],
-  'objective dropped': [between('      {id:"3.3", domain:"3.0", title:"Implement incident response techniques"', '      {id:"4.1", domain:"4.0", title:"Explain vulnerability management'), ''],
+  'objective dropped': [between('      {id:"3.3", domain:"3.0", title:"Implement incident response techniques"', '      {id:"4.1", domain:"4.0", title:"Explain the importance of vulnerability management'), ''],
   'unconfirmed caution switched off': ['name: "CompTIA Security+ (V8)",\n    numbersUnconfirmed: true,', 'name: "CompTIA Security+ (V8)",\n    numbersUnconfirmed: false,'],
   'CySA+ back on the CS0-003 key': ['"cysa-v4"', '"cysa"', true],
   'Security+ left disabled': ['<option value="secplus-v8">', '<option value="secplus-v8" disabled>'],
   'script error in the plan': ["function buildStudyAction(o){\n", "function buildStudyAction(o){\n  if(o.title.includes('AI')) throw new Error('planted');\n"],
   'checklist cut short on the day card': ['const checklistHtml = (o.checklist||[]).map(', 'const checklistHtml = (o.checklist||[]).slice(0,3).map(', true],
+  'CySA+ title back in the doc wording': ['title:"Summarize the incident response process"', 'title:"Outline the incident response process"'],
+  'CySA+ scenario objective marked recall': ['title:"Analyze data to prioritize and mitigate vulnerabilities", roi:true, confuse:true, kind:"scenario"', 'title:"Analyze data to prioritize and mitigate vulnerabilities", roi:true, confuse:true, kind:"recall"'],
+  'CySA+ caution back to the whole bank': ['unconfirmedIds: ["1.5","1.6"],', 'numbersUnconfirmed: true,'],
+  'CySA+ caution forgets 1.6': ['unconfirmedIds: ["1.5","1.6"]', 'unconfirmedIds: ["1.5"]'],
+  'pasted score report not read': ['raw.match(/\\d\\.\\d/g)', 'raw.match(/^\\d\\.\\d/gm)'],
+  'header name reverted': ['<div class="brand">Shane&rsquo;s Retake Planner</div>', '<div class="brand">RETAKE OPS PLANNER</div>'],
+  'page title reverted': ['<title>Shane&rsquo;s Retake Planner — CWP</title>', '<title>Retake Ops Planner — CWP</title>'],
   'footer removed': [between('<footer class="site-footer">', '<div id="storage-warning"'), ''],
   'footer in the short form': ['Cyber Warrior Program &mdash; built by an instructor, for students, to make certification study more interactive. For educational purposes only.', 'For educational purposes only.'],
 };

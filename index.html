@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Retake Ops Planner — CWP</title>
+<title>Shane&rsquo;s Retake Planner — CWP</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -39,9 +39,12 @@
     flex-wrap:wrap;
     gap:8px;
   }
+  /* Written in mixed case and set in capitals here, so a screen reader says
+     the name rather than spelling it out. */
   header.top .brand{
     font-family:'Space Mono',monospace;
     font-weight:700;
+    text-transform:uppercase;
     letter-spacing:1px;
     font-size:15px;
     color:var(--amber);
@@ -443,7 +446,7 @@
 <body>
 
 <header class="top">
-  <div class="brand">RETAKE OPS PLANNER</div>
+  <div class="brand">Shane&rsquo;s Retake Planner</div>
   <div class="sub">Cyber Warrior Program</div>
 </header>
 
@@ -803,15 +806,18 @@ const EXAM_DATA = {
   },
   /* ============================================================
      CONTENT BANK — CompTIA CySA+ (CS0-004), V4
-     Replaces the CS0-003 bank (29 September 2026). Domains, weights,
-     objective titles and every checklist item are taken from the
-     owner's "All updated Objectives" document, in its wording.
-     NUMBERS UNCONFIRMED: that document gives the objectives no
-     numbers. 1.1, 1.2... are assigned here in the document's order
-     and have NOT been checked against CompTIA's official objectives
-     PDF or a real score report. numbersUnconfirmed tells the page to
-     say so to the student. When confirmed, fix any that differ and
-     set it to false.
+     Replaces the CS0-003 bank (29 September 2026). Domains, weights
+     and every checklist item are taken from the owner's "All updated
+     Objectives" document, in its wording.
+     NUMBERS AND TITLES: 13 of the 15 are CONFIRMED by a real CompTIA
+     CySA+ score report the owner supplied on 30 September 2026
+     (verify/cysa-score-report-2026-09-30.md). Those titles are
+     CompTIA's own, without the leading "Given a scenario," (as in the
+     A+ bank). 1.5 and 1.6 were not on that report, so their numbers
+     and titles are still the document's order and wording, and
+     unconfirmedIds tells the page to say so to the student. When a
+     report or the official PDF confirms them, fix any that differ and
+     empty the list.
      Keyed "cysa-v4", not "cysa", so a CS0-003 plan a student saved
      on their device is never reopened against these numbers.
      "roi", "confuse", "kind" and "tip" are instructor judgment
@@ -819,7 +825,7 @@ const EXAM_DATA = {
      ============================================================ */
   "cysa-v4": {
     name: "CompTIA CySA+ (CS0-004)",
-    numbersUnconfirmed: true,
+    unconfirmedIds: ["1.5","1.6"],
     domains: [
       {id:"1.0", name:"Security Operations", weight:34},
       {id:"2.0", name:"Vulnerability Management", weight:26},
@@ -827,10 +833,10 @@ const EXAM_DATA = {
       {id:"4.0", name:"Reporting and Communication", weight:16}
     ],
     objectives: [
-      {id:"1.1", domain:"1.0", title:"Explain system and network architecture concepts in security operations", roi:false, confuse:true, kind:"recall",
+      {id:"1.1", domain:"1.0", title:"Explain concepts related to system and network architecture in security operations", roi:false, confuse:true, kind:"recall",
         tip:"Three strands: architecture, identity and logging. For every component you study, answer two questions — what does it protect, and what record does it leave behind for an analyst to read?",
         checklist:["Security architecture components","Identity concepts","Logging practices that support secure environments"]},
-      {id:"1.2", domain:"1.0", title:"Analyze indicators of potential malicious activity", roi:true, confuse:false, kind:"scenario",
+      {id:"1.2", domain:"1.0", title:"Analyze indicators of potentially malicious activity", roi:true, confuse:false, kind:"scenario",
         tip:"Sort before you name. Decide where the evidence came from — network, endpoint, cloud or identity — before deciding what the attack is. Where it came from tells you which log to read next.",
         checklist:["Suspicious activity across networks","Suspicious activity on endpoints","Suspicious activity in cloud","Suspicious activity in identity systems"]},
       {id:"1.3", domain:"1.0", title:"Use tools to determine malicious activity", roi:true, confuse:true, kind:"scenario",
@@ -852,7 +858,7 @@ const EXAM_DATA = {
       {id:"2.2", domain:"2.0", title:"Analyze output from vulnerability assessment tools", roi:true, confuse:true, kind:"scenario",
         tip:"Read scan output as evidence, not as a verdict. For each finding ask: is it real, does it apply to this asset, and what would prove it either way?",
         checklist:["Vulnerabilities identified through scan results","Findings identified through scan results","Security gaps identified through scan results"]},
-      {id:"2.3", domain:"2.0", title:"Prioritize and mitigate vulnerabilities", roi:true, confuse:true, kind:"scenario",
+      {id:"2.3", domain:"2.0", title:"Analyze data to prioritize and mitigate vulnerabilities", roi:true, confuse:true, kind:"scenario",
         tip:"A score is where prioritizing starts, not where it ends. Rank the same list twice — once by score alone, once with threat intelligence and business context added — and explain every place the order changed.",
         checklist:["Risk-based approaches","Scoring systems","Threat intelligence","Business context"]},
       {id:"2.4", domain:"2.0", title:"Explain concepts related to control types, risks, and vulnerability management", roi:false, confuse:true, kind:"recall",
@@ -862,17 +868,17 @@ const EXAM_DATA = {
       {id:"3.1", domain:"3.0", title:"Summarize concepts related to attack methodology frameworks", roi:false, confuse:true, kind:"recall",
         tip:"Both describe attacker behaviour from different angles. The Cyber Kill Chain is a sequence of stages; MITRE ATT&CK is a catalogue of tactics and techniques. Know which one answers \"how far did they get?\" and which answers \"what exactly did they do?\"",
         checklist:["Attack methodology models","MITRE ATT&CK","Cyber Kill Chain"]},
-      {id:"3.2", domain:"3.0", title:"Outline the incident response process", roi:true, confuse:true, kind:"recall",
+      {id:"3.2", domain:"3.0", title:"Summarize the incident response process", roi:true, confuse:true, kind:"recall",
         tip:"Learn the phases as an order, not a list, then practise placing a single action into its phase. \"What should the analyst do next?\" needs the order.",
         checklist:["Preparation","Detection","Analysis","Containment","Eradication","Recovery"]},
       {id:"3.3", domain:"3.0", title:"Implement incident response techniques", roi:true, confuse:false, kind:"scenario",
         tip:"Walk one incident end to end and name the technique at each step. Evidence handling is the easiest to get wrong under pressure — decide what you would preserve before you decide what you would fix.",
         checklist:["Triage","Evidence handling","Escalation","Remediation","Root cause identification"]},
 
-      {id:"4.1", domain:"4.0", title:"Explain vulnerability management reporting and communication", roi:false, confuse:false, kind:"recall",
+      {id:"4.1", domain:"4.0", title:"Explain the importance of vulnerability management reporting and communication", roi:false, confuse:false, kind:"recall",
         tip:"For every report or dashboard, name its audience. The same finding is written differently for the team that fixes it and for the manager who pays for the fix.",
         checklist:["Reports","Dashboards","Communication activities used to present findings","Communication that supports escalation during security events"]},
-      {id:"4.2", domain:"4.0", title:"Describe security operations, incident response reporting, and communication", roi:false, confuse:true, kind:"recall",
+      {id:"4.2", domain:"4.0", title:"Explain the importance of security operations and incident response reporting and communication", roi:false, confuse:true, kind:"recall",
         tip:"The three metrics blur easily. Write each as a plain question: how long until we knew, how long until we acted, and did the fix actually work?",
         checklist:["Incident documentation","Post-incident reviews","Metric: detection time","Metric: response time","Metric: remediation effectiveness"]}
     ]
@@ -995,8 +1001,8 @@ const PASSING_SCORES = {
   "aplus-1201": 675,
   "aplus-1202": 700,
   "netplus": 725,
-  // Security+ V8: 750 is carried over from SY0-701 and is an ASSUMPTION
-  // until CompTIA publishes the V8 passing score. CySA+ CS0-004: 750.
+  // Security+ V8: 750, confirmed by the owner (30 September 2026).
+  // CySA+ CS0-004: 750, as printed on a real CS0-004 score report.
   "secplus-v8": 750,
   "cysa-v4": 750
 };
@@ -1109,8 +1115,12 @@ function goToStep2(){
 function renderManualChecklist(container){
   const exam = EXAM_DATA[state.studentInfo.exam];
   const wrap = document.getElementById('manual-adjust');
+  const unconfirmed = exam.unconfirmedIds || [];
+  const listed = unconfirmed.length > 1 ? unconfirmed.slice(0,-1).join(', ') + ' and ' + unconfirmed[unconfirmed.length-1] : unconfirmed.join('');
   document.getElementById('numbers-caution').innerHTML = exam.numbersUnconfirmed
     ? `<div class="numbers-caution" role="note"><b>Check the titles, not just the numbers.</b> The objective numbers for ${exam.name} follow the order of the objectives list and haven't been checked against CompTIA's official numbering yet. After matching, compare each title below with the title on your score report, and fix any ticks that don't line up.</div>`
+    : unconfirmed.length
+    ? `<div class="numbers-caution" role="note"><b>Check the titles for ${listed}.</b> The other ${exam.name} numbers match a real CompTIA score report. ${unconfirmed.length > 1 ? 'These haven\'t' : 'This hasn\'t'} been checked yet, so if your report lists ${unconfirmed.length > 1 ? 'either one' : 'it'}, compare its title with the one below and fix the tick if they don't line up.</div>`
     : '';
   let html = '<div class="hint" style="margin-top:14px;">Or check objectives manually / adjust matches below:</div>';
   exam.domains.forEach(dom=>{
