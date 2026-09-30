@@ -2,8 +2,8 @@
 
 Read this first in any session that touches this repo. It adds to
 `/root/.claude/CLAUDE.md` and never overrides it. That file sets the rules:
-push only when the owner asks (allowed since 30 September 2026), zips when
-asked, AAA contrast on painted pixels, the full footer, the royal palette,
+push to GitHub after each verified change (the owner's rule since
+30 September 2026), zips when asked, AAA contrast on painted pixels, the full footer, the royal palette,
 and the objectives shown first.
 
 `main` is what GitHub Pages serves, so a push to `main` is live to students.
