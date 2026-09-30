@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retake Ops Planner — CWP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220;
+    --panel:#131b2e;
+    --panel-2:#0f1626;
+    --line:#243044;
+    --text:#e8e6df;
+    --muted:#8b96ab;
+    --amber:#e2892f;
+    --amber-dim:#5c4425;
+    --green:#7ca86b;
+    --green-dim:#2c3a26;
+    --rust:#c15b3f;
+    --rust-dim:#3a241d;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.5;
+  }
+  .mono{font-family:'Space Mono',ui-monospace,monospace;}
+  header.top{
+    border-bottom:1px solid var(--line);
+    padding:20px 24px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  header.top .brand{
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    letter-spacing:1px;
+    font-size:15px;
+    color:var(--amber);
+  }
+  header.top .sub{color:var(--muted);font-size:13px;}
+  main{max-width:760px;margin:0 auto;padding:28px 20px 80px;}
+  .step-label{
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    letter-spacing:2px;
+    color:var(--amber);
+    text-transform:uppercase;
+    margin:0 0 6px;
+  }
+  .step-title{font-size:22px;font-weight:700;margin:0 0 18px;}
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:22px;
+    margin-bottom:18px;
+  }
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500;}
+  input[type=text], input[type=number], input[type=date], select, textarea{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:10px 12px;
+    border-radius:6px;
+    font-size:14px;
+    font-family:inherit;
+    margin-bottom:16px;
+  }
+  input:focus, select:focus, textarea:focus{
+    outline:2px solid var(--amber);
+    outline-offset:1px;
+  }
+  textarea{min-height:110px;resize:vertical;font-family:'Space Mono',monospace;font-size:13px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;}
+  .btn{
+    background:var(--amber);
+    color:#1a1206;
+    border:none;
+    padding:12px 20px;
+    border-radius:6px;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .btn:hover{filter:brightness(1.08);}
+  .btn.secondary{
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--text);
+  }
+  .btn:disabled{opacity:0.4;cursor:not-allowed;}
+  .hint{font-size:12px;color:var(--muted);margin-top:-10px;margin-bottom:16px;}
+  /* Shown only for an exam whose objective numbers are not yet confirmed
+     against CompTIA's official list. Main text colour, not --muted: it
+     carries something the student has to act on. */
+  .numbers-caution{font-size:13.5px;color:var(--text);border:1px solid var(--amber);border-radius:8px;padding:10px 12px;margin:0 0 16px;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 6px;}
+  .chip{
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    padding:5px 10px;
+    border-radius:20px;
+    background:var(--green-dim);
+    border:1px solid var(--green);
+    color:var(--green);
+  }
+  .chip.unmatched{background:var(--rust-dim);border-color:var(--rust);color:var(--rust);}
+  .domain-block{border-top:1px solid var(--line);padding-top:12px;margin-top:12px;}
+  .domain-block:first-child{border-top:none;margin-top:0;padding-top:0;}
+  .domain-block h4{
+    margin:0 0 8px;
+    font-size:13px;
+    color:var(--muted);
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  .obj-check{display:flex;align-items:flex-start;gap:8px;padding:6px 0;font-size:13.5px;}
+  .obj-check input{width:auto;margin:3px 0 0;flex-shrink:0;}
+  .obj-check .flags{margin-left:6px;}
+  .flag{font-size:10px;padding:2px 6px;border-radius:10px;margin-left:4px;font-family:'Space Mono',monospace;}
+  .flag.roi{background:var(--amber-dim);color:var(--amber);}
+  .flag.confuse{background:var(--rust-dim);color:var(--rust);}
+  .countdown{
+    text-align:center;
+    padding:26px 20px;
+    background:linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    border:1px solid var(--amber);
+    border-radius:12px;
+    margin-bottom:24px;
+  }
+  .countdown .n{
+    font-family:'Space Mono',monospace;
+    font-size:56px;
+    font-weight:700;
+    color:var(--amber);
+    line-height:1;
+  }
+  .countdown .lbl{
+    font-family:'Space Mono',monospace;
+    letter-spacing:3px;
+    font-size:12px;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin-top:6px;
+  }
+  .countdown .meta{font-size:13px;color:var(--muted);margin-top:10px;}
+  .obj-item{margin-bottom:12px;}
+  .obj-item:last-child{margin-bottom:0;}
+  .obj-item .focus{font-weight:700;font-size:14.5px;margin-bottom:4px;}
+  .obj-item .obj-id{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    color:var(--bg);
+    background:var(--amber);
+    padding:1px 6px;
+    border-radius:4px;
+    margin-right:8px;
+    display:inline-block;
+  }
+  .obj-item .tip{font-size:13px;color:var(--muted);margin-top:4px;}
+  .obj-item .action{font-size:13px;color:var(--text);margin-top:8px;line-height:1.5;}
+  .obj-item .action b{color:var(--amber);}
+  .checklist-label{
+    font-size:11px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    font-family:'Space Mono',monospace;
+    margin-top:10px;
+    margin-bottom:6px;
+  }
+  .check-tags{display:flex;flex-wrap:wrap;gap:6px;}
+  .check-tag{
+    font-size:12px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    padding:4px 9px;
+    border-radius:5px;
+    color:var(--text);
+  }
+  .reinforce-tag{
+    font-size:10px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    font-family:'Space Mono',monospace;
+    margin-left:6px;
+  }
+  .compressed-note{
+    font-size:12.5px;
+    color:var(--amber);
+    background:var(--amber-dim);
+    border:1px solid var(--amber);
+    border-radius:6px;
+    padding:10px 14px;
+    margin-bottom:18px;
+  }
+  .howto-box{
+    font-size:13.5px;
+    color:var(--text);
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-left:3px solid var(--amber);
+    border-radius:8px;
+    padding:14px 18px;
+    margin-bottom:20px;
+    line-height:1.55;
+  }
+  .howto-box b{color:var(--amber);}
+  .howto-box ol{margin:8px 0 8px 18px;padding:0;}
+  .howto-box li{margin-bottom:4px;}
+  .triage-note{
+    font-size:13px;
+    color:var(--text);
+    background:var(--amber-dim);
+    border:1px solid var(--amber);
+    border-radius:8px;
+    padding:14px 16px;
+    margin-bottom:18px;
+    line-height:1.5;
+  }
+  .triage-note-title{
+    font-weight:700;
+    color:var(--amber);
+    margin-bottom:4px;
+    font-size:14px;
+  }
+  .appendix-box{
+    background:var(--panel-2);
+    border:1px dashed var(--line);
+    border-radius:10px;
+    padding:16px 18px;
+    margin-top:20px;
+  }
+  .appendix-box h4{
+    margin:0 0 6px;
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .appendix-intro{font-size:12.5px;color:var(--muted);margin:0 0 14px;}
+  .appendix-item{margin-bottom:12px;}
+  .appendix-item:last-child{margin-bottom:0;}
+  .appendix-item .focus{font-weight:700;font-size:14.5px;margin-bottom:4px;}
+  .appendix-item .obj-id{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    color:var(--text);
+    background:var(--panel);
+    border:1px solid var(--muted);
+    padding:1px 6px;
+    border-radius:4px;
+    margin-right:8px;
+    display:inline-block;
+  }
+  .appendix-item .tip{font-size:13px;color:var(--muted);margin-top:4px;}
+
+  /* Accordion day cards (v2) */
+  .day-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    margin-bottom:10px;
+    overflow:hidden;
+  }
+  .day-card.locked{opacity:0.5;}
+  .day-card.today{border-color:var(--amber);}
+  .day-card.completed{border-color:var(--green);}
+  .day-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 16px;
+    cursor:pointer;
+    gap:10px;
+  }
+  .day-card.locked .day-header{cursor:not-allowed;}
+  .day-header .dh-left{display:flex;align-items:center;gap:10px;}
+  .day-header .dh-num{font-family:'Space Mono',monospace;color:var(--amber);font-size:14px;}
+  .day-header .dh-title{font-weight:600;font-size:14px;}
+  .day-header .dh-date{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;}
+  .status-pill{
+    font-size:10px;
+    font-family:'Space Mono',monospace;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    padding:3px 9px;
+    border-radius:10px;
+  }
+  .status-pill.locked{background:var(--panel-2);color:var(--muted);}
+  .status-pill.today{background:var(--amber-dim);color:var(--amber);}
+  .status-pill.available{background:var(--panel-2);color:var(--text);border:1px solid var(--line);}
+  .status-pill.done{background:var(--green-dim);color:var(--green);}
+  .day-body{padding:0 16px 18px;}
+  .warmup-box{
+    background:var(--panel-2);
+    border:1px solid var(--amber);
+    border-radius:8px;
+    padding:14px;
+    margin-bottom:16px;
+  }
+  .warmup-box h4{
+    margin:0 0 10px;
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--amber);
+  }
+  .recall-q{margin-bottom:14px;}
+  .recall-q:last-child{margin-bottom:0;}
+  .recall-q .qtext{font-size:13.5px;margin-bottom:8px;}
+  .recall-opt{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:8px 12px;
+    border-radius:6px;
+    font-size:13px;
+    font-family:inherit;
+    margin-bottom:6px;
+    cursor:pointer;
+  }
+  .recall-opt:hover{border-color:var(--amber);}
+  .recall-opt.correct{background:var(--green-dim);border-color:var(--green);color:var(--green);}
+  .recall-opt.incorrect{background:var(--rust-dim);border-color:var(--rust);color:var(--rust);}
+  .recall-opt:disabled{cursor:default;}
+  .recall-short input{margin-bottom:8px;}
+  .recall-answer{
+    font-size:13px;
+    color:var(--green);
+    background:var(--green-dim);
+    border:1px solid var(--green);
+    border-radius:6px;
+    padding:8px 12px;
+    margin-top:6px;
+    display:none;
+  }
+  .recall-answer.shown{display:block;}
+  .btn-small{
+    background:var(--amber);
+    color:#1a1206;
+    border:none;
+    padding:6px 12px;
+    border-radius:5px;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .mark-complete{margin-top:10px;}
+  .resume-card{
+    background:var(--panel);
+    border:1px solid var(--amber);
+    border-radius:10px;
+    padding:18px 20px;
+    margin-bottom:18px;
+  }
+  .resume-card p{margin:0 0 12px;font-size:13.5px;}
+  .logistics-list{list-style:none;padding:0;margin:0;}
+  .logistics-list li{padding:6px 0;font-size:13.5px;border-bottom:1px solid var(--line);}
+  .logistics-list li:last-child{border-bottom:none;}
+  .locked-note{
+    font-size:12px;
+    color:var(--muted);
+    font-family:'Space Mono',monospace;
+    padding:0 16px 14px;
+  }
+  footer.note{
+    text-align:center;
+    color:var(--muted);
+    font-size:12px;
+    margin-top:24px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+  }
+  /* The program disclaimer, on every step. Main text colour rather than
+     --muted, so it clears 7:1. */
+  .site-footer{
+    max-width:760px;
+    margin:0 auto;
+    padding:16px 20px 32px;
+    border-top:1px solid var(--line);
+    text-align:center;
+    color:var(--text);
+    font-size:12px;
+  }
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+  .error{color:var(--rust);font-size:13px;margin-top:-8px;margin-bottom:14px;}
+  @media print{
+    header.top, .no-print{display:none !important;}
+    body{background:#fff;color:#000;}
+    .site-footer{color:#000;border-color:#999;}
+    .card, .countdown{background:#fff;border:1px solid #999;}
+    .countdown{border-color:#000;}
+    .countdown .n, .countdown .lbl{color:#000;}
+    .obj-item .obj-id{background:#000;color:#fff;}
+    .obj-item .focus{color:#000;}
+    .obj-item .action{color:#000;}
+    .obj-item .action b{color:#000;}
+    .check-tag{background:#f2f2f2;border-color:#999;color:#000;}
+    .compressed-note{background:#fff3e0;border-color:#000;color:#000;}
+    .triage-note{background:#fff3e0;border-color:#000;color:#000;}
+    .triage-note-title{color:#000;}
+    .appendix-box{background:#fff;border-color:#999;}
+    .appendix-box h4, .appendix-intro{color:#000;}
+    .appendix-item .obj-id{background:#fff;color:#000;border:1px solid #666;}
+    .appendix-item .focus, .appendix-item .tip{color:#000;}
+    .day-card{border:1px solid #999; break-inside:avoid;}
+    .day-card.locked{opacity:1;}
+    .day-header{cursor:default;}
+    .day-body{display:block !important; padding:0 16px 18px;}
+    .status-pill{display:none;}
+    .warmup-box{border-color:#000;background:#fff;}
+    .warmup-box h4{color:#000;}
+    .recall-opt{border-color:#999;color:#000;background:#fff;}
+    .recall-answer{display:block !important;background:#fff;border-color:#000;color:#000;}
+    .btn-small, .mark-complete{display:none !important;}
+  }
+  @media (max-width:520px){
+    .row2{grid-template-columns:1fr;}
+    .countdown .n{font-size:44px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">RETAKE OPS PLANNER</div>
+  <div class="sub">Cyber Warrior Program</div>
+</header>
+
+<main>
+
+  <!-- STEP 1 -->
+  <section id="step1">
+    <p class="step-label">Step 1 / 3</p>
+    <h2 class="step-title">Score Report Intake</h2>
+    <div class="howto-box">
+      <b>What this is:</b> your own personal retake study plan, built from your actual score report. It only takes a couple minutes to set up.
+      <ol>
+        <li>Enter your name, exam, score, and the date you're planning to retake.</li>
+        <li>On the next screen, you'll paste or check off the specific objectives you missed.</li>
+        <li>You'll get a day-by-day plan up until your retake — it saves automatically on this device, so you can close the tab and come back to it tomorrow.</li>
+      </ol>
+      This is meant for you to fill out yourself, on your own device — it won't work right if someone else's plan gets passed around on a shared file.
+    </div>
+    <div id="resume-banner"></div>
+    <div class="card">
+      <label for="s-name">Your name</label>
+      <input type="text" id="s-name" placeholder="First Last">
+
+      <label for="s-exam">Exam</label>
+      <select id="s-exam">
+        <option value="aplus-1201" selected>CompTIA A+ Core 1 (220-1201)</option>
+        <option value="aplus-1202" disabled>CompTIA A+ Core 2 (220-1202) — coming soon</option>
+        <option value="netplus" disabled>CompTIA Network+ — coming soon</option>
+        <option value="secplus-v8">CompTIA Security+ (V8)</option>
+        <option value="cysa-v4">CompTIA CySA+ (CS0-004)</option>
+      </select>
+
+      <div class="row2">
+        <div>
+          <label for="s-score">Score</label>
+          <input type="number" id="s-score" placeholder="e.g. 612" min="100" max="900">
+        </div>
+        <div>
+          <label for="s-retake">Planned retake date</label>
+          <input type="date" id="s-retake">
+        </div>
+      </div>
+
+
+      <button class="btn" onclick="goToStep2()">Continue</button>
+      <div class="error" id="step1-error"></div>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section id="step2" style="display:none;">
+    <p class="step-label">Step 2 / 3</p>
+    <h2 class="step-title">Missed Objectives</h2>
+    <div class="howto-box">
+      <b>Look at your CompTIA score report</b> — it lists the specific objective numbers (like 2.1, 3.4) you missed, usually under a "performance by objective" section.
+      <ol>
+        <li>Copy those numbers and paste them into the box below, then click "Match objectives."</li>
+        <li>Anything it can't confidently match will show up for you to check off manually underneath — that's normal, not an error.</li>
+        <li>Don't have the report handy, or numbers weren't listed? Just check off what you remember missing in the list below instead.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <label for="s-paste">Paste the objectives you missed from your score report</label>
+      <textarea id="s-paste" placeholder="Paste objective numbers or lines from your report, e.g.&#10;1.4, 2.1, 3.4&#10;or one per line"></textarea>
+      <div class="hint">Copy directly from your CompTIA score report. We'll match on objective numbers like 2.1 or 3.4.</div>
+      <button class="btn secondary" onclick="parseObjectives()">Match objectives</button>
+
+      <div id="numbers-caution"></div>
+
+      <div id="match-results" style="margin-top:18px;"></div>
+
+      <div id="manual-adjust" style="margin-top:10px;"></div>
+
+      <div class="actions">
+        <button class="btn secondary" onclick="goToStep1()">Back</button>
+        <button class="btn" id="continue-step3" onclick="goToStep3()" disabled>Generate my plan</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section id="step3" style="display:none;">
+    <p class="step-label no-print">Step 3 / 3</p>
+    <h2 class="step-title no-print">Your Retake Study Plan</h2>
+    <div id="plan-summary"></div>
+    <div id="plan-days"></div>
+    <div id="plan-appendix"></div>
+    <div class="actions no-print">
+      <button class="btn secondary" onclick="goToStep2()">Back and adjust</button>
+      <button class="btn" onclick="window.print()">Print / Save as PDF</button>
+      <button class="btn secondary" onclick="clearMyData()" style="margin-left:auto;color:var(--rust);border-color:var(--rust);">Clear my data</button>
+    </div>
+    <footer class="note no-print">Your progress saves on this device only, so you can come back day by day. It's automatically deleted after your retake date. Nobody else can see it, and it never leaves your browser. If this is a shared or public computer, use "Clear my data" when you're done.</footer>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  Cyber Warrior Program &mdash; built by an instructor, for students, to make certification study more interactive. For educational purposes only. Not affiliated with, endorsed by, or sponsored by CompTIA&reg;. All trademarks belong to their respective owners.
+</footer>
+
+<div id="storage-warning" class="no-print" style="display:none; position:fixed; bottom:0; left:0; right:0; background:var(--rust-dim); color:var(--rust); border-top:1px solid var(--rust); padding:10px 16px; font-size:13px; text-align:center; z-index:50;">
+  Your browser isn't saving progress on this device (this is common in private/incognito windows). Your plan will still work for today's session, but it won't be there if you come back tomorrow — consider printing it now.
+</div>
+
+<div id="tab-warning" class="no-print" style="display:none; position:fixed; bottom:0; left:0; right:0; background:var(--amber-dim); color:var(--amber); border-top:1px solid var(--amber); padding:10px 16px; font-size:13px; text-align:center; z-index:51;">
+  This plan looks like it's open in another tab or window too. Progress may not save correctly if both stay open — close the other one to be safe.
+</div>
+
+<div id="debug-panel" class="no-print" style="display:none; position:fixed; top:16px; right:16px; background:var(--panel); border:1px solid var(--rust); border-radius:8px; padding:12px 14px; z-index:100; font-family:'Space Mono',monospace; font-size:12px; box-shadow:0 4px 16px rgba(0,0,0,0.4); min-width:170px;">
+  <div style="color:var(--rust); text-transform:uppercase; letter-spacing:1px; font-size:10px; margin-bottom:8px;">Testing Panel</div>
+  <div id="debug-offset-label" style="color:var(--muted); margin-bottom:10px;">Simulated: +0 days</div>
+  <button class="btn-small" style="width:100%; margin-bottom:6px;" onclick="__rpAdvanceDay(1); updateDebugPanel();">Advance +1 Day</button>
+  <button class="btn secondary" style="width:100%; padding:6px 10px; font-size:12px;" onclick="__rpResetDay(); updateDebugPanel();">Reset to Real Time</button>
+</div>
+
+<script>
+/* ============================================================
+   CONTENT BANK — CompTIA A+ Core 1 (220-1201) V15
+   Domain weights and objectives are from the official CompTIA
+   exam objectives document. "roi" and "confuse" flags plus the
+   "tip" text are instructor-authored judgment calls — review
+   and edit these before relying on them with students.
+   ============================================================ */
+const EXAM_DATA = {
+  "aplus-1201": {
+    name: "CompTIA A+ Core 1 (220-1201)",
+    domains: [
+      {id:"1.0", name:"Mobile Devices", weight:13},
+      {id:"2.0", name:"Networking", weight:23},
+      {id:"3.0", name:"Hardware", weight:25},
+      {id:"4.0", name:"Virtualization and Cloud Computing", weight:11},
+      {id:"5.0", name:"Hardware and Network Troubleshooting", weight:28}
+    ],
+    objectives: [
+      {id:"1.1", domain:"1.0", title:"Monitor mobile device hardware and use appropriate replacement techniques", roi:false, confuse:false, kind:"scenario",
+        tip:"Mostly recall — know which components (battery, RAM, SSD, wireless cards) are field-replaceable vs. sealed on modern laptops/tablets.",
+        checklist:["Battery","Keyboard/keys","RAM (SODIMM)","HDD/SSD","Wireless cards","Biometric & NFC security components","Wi-Fi antenna connector/placement","Camera/webcam","Microphone"],
+        recall:[
+          {type:"short", q:"A customer's laptop won't hold a charge for more than 20 minutes, though it used to last hours. What would you check first, and why?", a:"The battery — sudden capacity loss is almost always a degraded or swelling battery; check for physical swelling before anything else, since a swollen battery is also a safety issue, not just a performance one."},
+          {type:"short", q:"You're upgrading a laptop's RAM. What determines whether you need a SODIMM instead of a standard DIMM?", a:"Form factor, driven by space — laptops use the smaller SODIMM because there's no room for a full-size DIMM; desktops use standard DIMM."},
+          {type:"short", q:"A user's fingerprint reader stopped working right after a Windows update. What do you check before assuming it's a hardware failure?", a:"Driver/firmware compatibility first — biometric readers are frequently broken by OS updates that outpace the driver, and that's far more common than the sensor itself failing."}
+        ]},
+      {id:"1.2", domain:"1.0", title:"Compare and contrast accessories and connectivity options for mobile devices", roi:false, confuse:true, kind:"recall",
+        tip:"Students mix up USB-C, Lightning, and NFC use cases — know which is charging/data vs. short-range pairing.",
+        checklist:["USB / USB-C / microUSB / miniUSB","Lightning","NFC","Bluetooth","Tethering/hotspot","Stylus, headset, speakers, webcam","Docking station vs. port replicator","Trackpad/drawing pad/track points"],
+        recall:[
+          {type:"mc", q:"Which connector is used exclusively on Apple mobile devices for charging and data?", options:["Lightning","USB-C","micro-USB","NFC"], answer:0},
+          {type:"mc", q:"Which technology is built for short-range, tap-to-pair actions like contactless payment — not general file transfer?", options:["Tethering","Bluetooth","NFC","USB-C"], answer:2},
+          {type:"mc", q:"What actually distinguishes a docking station from a port replicator?", options:["They're the same thing, just different branding","A port replicator requires proprietary drivers, a docking station never does","A docking station only duplicates existing ports; a port replicator adds new functionality","A docking station typically adds extra functionality/ports beyond what's on the laptop; a port replicator just duplicates existing ports for convenience"], answer:3}
+        ]},
+      {id:"1.3", domain:"1.0", title:"Configure basic mobile device network connectivity and provide application support", roi:true, confuse:false, kind:"scenario",
+        tip:"Scenario-heavy objective — practice the Bluetooth pairing sequence and MDM corporate-vs-BYOD distinction, both show up as PBQs.",
+        checklist:["3G/4G/5G, hotspot, Wi-Fi, SIM/eSIM","Bluetooth pairing sequence: enable → pair → PIN → test","GPS vs. cellular location services","MDM: corporate vs. BYOD, policy enforcement","Sync: data caps, calendar, contacts, mail, cloud storage"],
+        recall:[
+          {type:"short", q:"A user wants to pair a new Bluetooth headset, but it's not showing up in their phone's list of available devices. Walk through the correct pairing sequence and where this is most likely failing.", a:"Enable Bluetooth on both devices → put the headset into pairing/discoverable mode → search on the phone → select the device → enter PIN if prompted → confirm and test audio. Most common failure point: the headset isn't actually in pairing mode, or it's already paired to another device and won't broadcast as available."},
+          {type:"short", q:"A company issues some phones as corporate-owned and lets other employees use personal phones under BYOD. What's the key practical difference in what IT can actually control on each?", a:"On corporate-owned devices, IT can fully manage the device — wipe it, restrict apps, enforce policy across the whole phone. On BYOD, IT typically manages only a separate work profile/container holding corporate apps and data, leaving the personal side untouched — a full wipe is usually off-limits to protect the employee's personal data."},
+          {type:"short", q:"A phone's maps app shows the correct location indoors with no cell signal and no Wi-Fi. What's providing that location data, and why does it still work?", a:"GPS — it relies on satellite signals, independent of cellular or Wi-Fi networks. Accuracy can still suffer indoors without assisted GPS from nearby Wi-Fi/cell towers, but it doesn't require either to function."}
+        ]},
+
+      {id:"2.1", domain:"2.0", title:"Compare and contrast TCP and UDP ports, protocols, and their purposes", roi:true, confuse:true, kind:"recall",
+        tip:"The single highest-yield memorization item on the whole exam. Drill the port number list cold and TCP-vs-UDP by protocol.",
+        checklist:["20-21 FTP","22 SSH","23 Telnet","25 SMTP","53 DNS","67/68 DHCP","80 HTTP","110 POP3","143 IMAP","137-139 NetBIOS/NetBT","389 LDAP","443 HTTPS","445 SMB/CIFS","3389 RDP","TCP vs. UDP behavior"],
+        recall:[
+          {type:"mc", q:"Which port does SSH use for secure remote command-line access?", options:["22","23","25","21"], answer:0},
+          {type:"mc", q:"Which of these protocols normally uses UDP rather than TCP?", options:["HTTP","SMTP","DNS (standard queries)","SSH"], answer:2},
+          {type:"mc", q:"An admin needs to remotely control a Windows server's desktop for troubleshooting. Which port are they using?", options:["445","389","143","3389"], answer:3}
+        ]},
+      {id:"2.2", domain:"2.0", title:"Explain wireless networking technologies", roi:false, confuse:true, kind:"recall",
+        tip:"2.4GHz vs 5GHz vs 6GHz tradeoffs (range vs. speed vs. interference) get mixed up — anchor it to a real SOHO deployment scenario.",
+        checklist:["2.4GHz vs. 5GHz vs. 6GHz tradeoffs","Channel width & regulations","Bluetooth","802.11 standards","NFC","RFID"],
+        recall:[
+          {type:"mc", q:"A user needs the longest possible range in a large house with thick walls, even if it costs them speed. Which frequency band should they prioritize?", options:["2.4GHz","5GHz","6GHz","Frequency doesn't affect range"], answer:0},
+          {type:"mc", q:"Which technology is built for passive, battery-free identification — like inventory tags powered entirely by the reader's own signal?", options:["Bluetooth","NFC","RFID","802.11ac"], answer:2},
+          {type:"mc", q:"Wider Wi-Fi channel widths (e.g. 80MHz vs. 20MHz) increase throughput, but come with what tradeoff in a crowded environment?", options:["Better range","More interference/overlap with neighboring networks","Lower security","Longer device battery life"], answer:1}
+        ]},
+      {id:"2.3", domain:"2.0", title:"Summarize services provided by networked hosts", roi:false, confuse:false, kind:"recall",
+        tip:"Straightforward recall of server roles (DNS, DHCP, mail, syslog, AAA) — flashcard-friendly.",
+        checklist:["DNS, DHCP, fileshare, print, mail, syslog, web, AAA, database, NTP servers","Spam gateway, UTM, load balancer, proxy","SCADA legacy/embedded systems","IoT devices"],
+        recall:[
+          {type:"mc", q:"Which server type automatically assigns IP addresses to devices on a network?", options:["NTP","DHCP","AAA","DNS"], answer:1},
+          {type:"mc", q:"Which server type keeps all devices on a network synced to the correct time?", options:["NTP","Syslog","Proxy","UTM"], answer:0},
+          {type:"mc", q:"A device authenticates users, authorizes their access level, and logs their activity for accounting. What category of service is this?", options:["Load balancer","UTM","AAA","DNS"], answer:2}
+        ]},
+      {id:"2.4", domain:"2.0", title:"Explain common network configuration concepts", roi:true, confuse:true, kind:"recall",
+        tip:"DNS record types (A vs AAAA vs CNAME vs MX vs TXT/SPF/DKIM/DMARC) are consistently the most confused pairing on this exam. Build a one-page cheat table.",
+        checklist:["DNS record types: A, AAAA, CNAME, MX, TXT (SPF/DKIM/DMARC)","DHCP: leases, reservations, scope, exclusions","VLAN","VPN"],
+        recall:[
+          {type:"mc", q:"Which DNS record type maps a domain name to an IPv6 address?", options:["CNAME","MX","AAAA","A"], answer:2},
+          {type:"mc", q:"A domain's TXT record contains an SPF entry. What's it actually for?", options:["Load balancing","Canonical name alias","Encrypting email content","Specifying which mail servers are authorized (SPF)"], answer:3},
+          {type:"mc", q:"How does a DHCP reservation differ from a standard DHCP lease?", options:["Reservation ties to a specific device via MAC; lease pulls from the pool","No real difference","Only applies to wireless","Reservation expires quickly, lease is permanent"], answer:0}
+        ]},
+      {id:"2.5", domain:"2.0", title:"Compare and contrast common networking hardware devices", roi:false, confuse:false, kind:"recall",
+        tip:"Know what each device does at a glance — router vs. switch vs. access point vs. firewall — plus managed vs. unmanaged switches.",
+        checklist:["Router vs. switch (managed/unmanaged)","Access point","Patch panel","Firewall","PoE injector/switch/standards","Cable modem vs. DSL vs. ONT","NIC & MAC address"],
+        recall:[
+          {type:"mc", q:"What's the key functional difference between a router and a switch?", options:["Functionally identical","Switch encrypts, router doesn't","Router directs traffic between networks; switch connects devices within one","Router only wireless, switch only wired"], answer:2},
+          {type:"mc", q:"What does a managed switch offer that an unmanaged switch doesn't?", options:["Lower cost","Wireless connectivity","Faster raw throughput","VLANs, traffic monitoring, per-port control"], answer:3},
+          {type:"mc", q:"What does PoE let a network device do?", options:["Filter malicious traffic","Deliver power and data over one cable","Automatically assign IPs","Encrypt data in transit"], answer:1}
+        ]},
+      {id:"2.6", domain:"2.0", title:"Configure basic wired/wireless SOHO networks", roi:true, confuse:true, kind:"scenario",
+        tip:"IPv4 addressing is the recurring trap: private vs. public ranges, static vs. dynamic, and APIPA (169.254.x.x) as a 'something's wrong with DHCP' signal.",
+        checklist:["IPv4 private vs. public ranges","IPv6 basics","APIPA (169.254.x.x)","Static vs. dynamic addressing","Subnet mask & gateway"],
+        recall:[
+          {type:"short", q:"A workstation shows an IP address of 169.254.15.22 and can't reach the internet or anything else on the network. What does this address tell you, and what's the likely root cause?", a:"It's an APIPA address — the device failed to get a response from a DHCP server and self-assigned it. Likely cause: the DHCP server is down or unreachable, or a cable/switch port issue is blocking the DHCP request entirely."},
+          {type:"short", q:"You're setting up a small office network and need every device to reliably reach the same shared printer at a fixed address. Static or dynamic addressing for the printer, and why?", a:"Static — shared resources like printers and servers need a predictable address that doesn't change, since other devices and manual configurations pointing to it depend on it staying the same."},
+          {type:"short", q:"A client wants to know which private IP range to use for a small home network. Give a typical example, and explain why it's 'private.'", a:"Something like 192.168.0.0/24 (or 10.0.0.0/8, 172.16.0.0/12) — these ranges aren't routable on the public internet and can be reused by countless networks simultaneously. The router's NAT function translates between this private range and a single public-facing IP."}
+        ]},
+      {id:"2.7", domain:"2.0", title:"Compare and contrast internet connection types, network types, and their characteristics", roi:false, confuse:false, kind:"recall",
+        tip:"Match connection type to scenario (rural = satellite/cellular, office = fiber/cable) rather than memorizing definitions in isolation.",
+        checklist:["Satellite, fiber, cable, DSL, cellular, WISP","LAN, WAN, PAN, MAN, SAN, WLAN"],
+        recall:[
+          {type:"mc", q:"A rural customer has no cable or fiber access, but there's line-of-sight to a nearby wireless tower. What connection type fits best?", options:["Fiber","WISP","DSL","Satellite"], answer:1},
+          {type:"mc", q:"What network type spans a large geographic area, connecting multiple LANs across cities or countries?", options:["WAN","SAN","PAN","LAN"], answer:0},
+          {type:"mc", q:"A storage array connects to servers over a dedicated high-speed network used only for block-level storage access, not general traffic. What type of network is this?", options:["MAN","WLAN","LAN","SAN"], answer:3}
+        ]},
+      {id:"2.8", domain:"2.0", title:"Explain networking tools and their purposes", roi:false, confuse:true, kind:"recall",
+        tip:"Toner probe vs. cable tester vs. loopback plug get swapped — tie each tool to the specific symptom it diagnoses.",
+        checklist:["Crimper","Cable stripper","Wi-Fi analyzer","Toner probe","Punchdown tool","Cable tester","Loopback plug","Network tap"],
+        recall:[
+          {type:"mc", q:"A technician needs to trace a specific cable through a wall or ceiling to find where it terminates. Which tool is built for this?", options:["Crimper","Toner probe","Loopback plug","Cable tester"], answer:1},
+          {type:"mc", q:"Which tool attaches an RJ45 connector onto the end of a raw Ethernet cable?", options:["Crimper","Punchdown tool","Cable stripper","Network tap"], answer:0},
+          {type:"mc", q:"A technician wants to passively monitor traffic between two devices without interrupting the connection. What do they insert inline?", options:["Wi-Fi analyzer","Loopback plug","Network tap","Cable tester"], answer:2}
+        ]},
+
+      {id:"3.1", domain:"3.0", title:"Compare and contrast display components and attributes", roi:false, confuse:false, kind:"recall",
+        tip:"Recall-heavy: panel types (IPS/TN/VA), OLED, and what pixel density/refresh rate actually affect.",
+        checklist:["LCD types: IPS, TN, VA","OLED, Mini-LED","Touchscreen/digitizer","Inverter","Pixel density, refresh rate, resolution, color gamut"],
+        recall:[
+          {type:"mc", q:"A designer needs the most accurate color reproduction and wide viewing angles for photo editing. Which panel type should they prioritize?", options:["TN","VA","IPS","Panel type doesn't affect color accuracy"], answer:2},
+          {type:"mc", q:"Which display technology produces true blacks by turning off individual pixels entirely, rather than blocking a backlight?", options:["TN","OLED","VA","Mini-LED"], answer:1},
+          {type:"mc", q:"On older laptops with CCFL backlights, what component converts DC power into the AC needed to drive the backlight?", options:["Digitizer","Panel driver","Touchscreen controller","Inverter"], answer:3}
+        ]},
+      {id:"3.2", domain:"3.0", title:"Summarize basic cable types and their connectors, features, and purposes", roi:false, confuse:true, kind:"recall",
+        tip:"Connector-to-cable matching (ST/SC/LC for fiber, RJ11 vs RJ45) is easy to blur — use a labeled picture reference, not just names.",
+        checklist:["Copper categories & T568A/B standards","Coax, STP, UTP, plenum-rated","Fiber: single-mode vs. multimode","Peripheral cables: USB 2.0/3.0, serial, Thunderbolt","Video cables: HDMI, DisplayPort, DVI, VGA, USB-C","Drive cables: SATA, eSATA","Connectors: RJ11, RJ45, ST, SC, LC, Molex, DB9"],
+        recall:[
+          {type:"mc", q:"Which fiber type is designed for long-distance runs using a single light path, typically paired with laser transmitters?", options:["Coax","UTP","Single-mode","Multimode"], answer:2},
+          {type:"mc", q:"A cable needs to run through a building's air handling spaces (above drop ceilings) per fire code. What jacket rating is required?", options:["Plenum-rated","UTP","STP","Coax"], answer:0},
+          {type:"mc", q:"What's the key physical difference between RJ11 and RJ45 connectors?", options:["They're identical in size and pin count","RJ45 is for phone lines, RJ11 for Ethernet","Both are used exclusively for fiber","RJ11 is for phone lines with fewer pins; RJ45 is for Ethernet with 8 pins"], answer:3}
+        ]},
+      {id:"3.3", domain:"3.0", title:"Compare and contrast RAM characteristics", roi:false, confuse:true, kind:"recall",
+        tip:"ECC vs. non-ECC and SODIMM vs. DIMM form factors are commonly swapped — anchor ECC to 'servers care about error correction.'",
+        checklist:["SODIMM vs. DIMM form factors","DDR generations","ECC vs. non-ECC","Channel configurations"],
+        recall:[
+          {type:"mc", q:"Why would a server prioritize ECC RAM over standard non-ECC RAM?", options:["ECC is faster","ECC only works in laptops","ECC is cheaper","ECC detects and corrects single-bit memory errors, improving reliability"], answer:3},
+          {type:"mc", q:"Installing two identical RAM sticks in matched slots to enable dual-channel mode primarily improves what?", options:["Power consumption","Physical socket compatibility","Memory bandwidth/throughput","Memory capacity limit"], answer:2},
+          {type:"mc", q:"What's the main reason laptops use SODIMM instead of standard DIMM modules?", options:["SODIMM's smaller size fits a laptop's limited space","DIMM isn't compatible with DDR4","SODIMM supports ECC, DIMM doesn't","SODIMM is faster than DIMM"], answer:0}
+        ]},
+      {id:"3.4", domain:"3.0", title:"Compare and contrast storage devices", roi:true, confuse:true, kind:"recall",
+        tip:"RAID levels (0, 1, 5, 6, 10) are the highest-confusion topic in this domain and reliably tested. Know the tradeoff (speed vs. redundancy vs. drives required) for each, not just the number.",
+        checklist:["HDD spindle speeds & form factors","SSD interfaces: NVMe, SATA, PCIe, SAS","M.2 vs. mSATA form factors","RAID 0, 1, 5, 6, 10 tradeoffs","Removable storage & optical drives"],
+        recall:[
+          {type:"mc", q:"Which RAID level stripes data across drives for maximum speed but provides zero redundancy — one drive failure loses everything?", options:["RAID 1","RAID 10","RAID 5","RAID 0"], answer:3},
+          {type:"mc", q:"Which RAID level mirrors data across two drives, giving redundancy but effectively halving usable capacity?", options:["RAID 5","RAID 0","RAID 1","RAID 6"], answer:2},
+          {type:"mc", q:"An SSD using NVMe over a PCIe interface offers what key advantage over a SATA SSD?", options:["Significantly higher throughput and lower latency than SATA","Requires no drivers at all","Always higher capacity","More compatible with older motherboards"], answer:0}
+        ]},
+      {id:"3.5", domain:"3.0", title:"Install and configure motherboards, CPUs, and add-on cards", roi:true, confuse:false, kind:"scenario",
+        tip:"Heavy PBQ territory — practice the actual BIOS/UEFI settings (Secure Boot, TPM, boot order) hands-on if you have lab access.",
+        checklist:["Motherboard form factors: ATX, microATX, ITX","Connector types: PCI, PCIe, SATA, M.2","CPU socket compatibility: AMD vs. Intel","BIOS/UEFI: boot options, TPM, Secure Boot, boot/BIOS password","CPU architecture: x86/x64 vs. ARM","Expansion cards & cooling methods"],
+        recall:[
+          {type:"short", q:"A customer wants to install Windows 11 on an older desktop, but the installer refuses to proceed. What two BIOS/UEFI settings are most likely missing or disabled, and where would you go to enable them?", a:"TPM and Secure Boot — both are Windows 11 hardware requirements. Enable them in the BIOS/UEFI setup, usually under Security or Advanced settings; TPM might be labeled 'PTT' or 'fTPM' depending on the manufacturer."},
+          {type:"short", q:"You're building a small form factor PC and need to choose a motherboard. What's the tradeoff between ITX and a full ATX board?", a:"ITX is much smaller and fits compact cases, but has fewer expansion slots, fewer RAM slots, and less room for add-on cards. ATX offers more expansion and connectivity but needs a larger case."},
+          {type:"short", q:"A customer bought a new AMD CPU, but their existing motherboard won't accept it. What's the most likely reason, and how would you confirm it?", a:"CPU socket incompatibility — AMD and Intel use different sockets, and even within AMD, socket types change across CPU generations. Confirm by checking the motherboard's supported socket type and CPU compatibility list (usually on the manufacturer's site) against the new CPU's socket."}
+        ]},
+      {id:"3.6", domain:"3.0", title:"Install the appropriate power supply", roi:false, confuse:false, kind:"scenario",
+        tip:"Know the standard voltages (3.3V/5V/12V) and what redundant vs. modular actually buys you operationally.",
+        checklist:["110-120VAC vs. 220-240VAC input","Output rails: 3.3V/5V/12V","20+4 pin connector","Redundant vs. modular PSU","Wattage & efficiency rating"],
+        recall:[
+          {type:"short", q:"A customer's building a high-end gaming PC with a power-hungry GPU and wants clean cable management in a small case. What PSU feature should they prioritize, and why?", a:"A modular (or semi-modular) power supply — you only attach the cables you actually need, cutting clutter and improving airflow in a tight case, versus a fully wired PSU with permanently attached cables you're not using."},
+          {type:"short", q:"A customer's area gets frequent short power outages that keep restarting their desktop mid-task. What device would you recommend to give them time to save work and shut down safely, and how is it different from a simple surge protector?", a:"A UPS (Uninterruptible Power Supply) — it has a battery that keeps the system running for a short window during an outage. A surge protector only guards against voltage spikes; it provides zero power during an actual outage."},
+          {type:"short", q:"A customer wants to add a new dedicated GPU to their existing build. What's the simple first check regarding the power supply before installing it?", a:"Confirm the PSU's total wattage and available PCIe power connectors meet or exceed the GPU's minimum requirement (listed by the manufacturer). If the existing PSU is undersized, it needs to be upgraded before the GPU goes in."}
+        ]},
+      {id:"3.7", domain:"3.0", title:"Deploy and configure multifunction devices/printers and settings", roi:false, confuse:false, kind:"scenario",
+        tip:"Focus on the security sub-points (user auth, badging, audit logs, secured prints) — these get tested more than driver mechanics.",
+        checklist:["Driver types: PCL vs. postscript","Connectivity: USB, Ethernet, wireless","Print server/share for shared devices","Config: duplex, orientation, tray, quality","Security: user auth, badging, audit logs, secured prints","Network scan: email, SMB, cloud"],
+        recall:[
+          {type:"short", q:"What are the three basic ways to connect a printer during setup?", a:"USB (direct connection to one computer), Ethernet (wired network), or wireless (Wi-Fi). The choice depends on whether the printer needs to be shared across the network or just used by one nearby computer."},
+          {type:"short", q:"If you want a few computers to share one printer without setting up a dedicated print server, what's the simplest way to do it?", a:"Enable printer sharing on the computer it's directly connected to, then have the other computers connect to it over the network as a shared device."},
+          {type:"short", q:"A user complains that a print job with dense graphics comes out garbled with broken layout, but plain text prints fine. What's a likely driver-related cause?", a:"Wrong or mismatched driver type — likely using a PCL driver (built for text/simple graphics) when the job needs PostScript, which handles complex graphics and precise layout better. Selecting the correct driver type usually fixes it."}
+        ]},
+      {id:"3.8", domain:"3.0", title:"Perform appropriate printer maintenance", roi:false, confuse:true, kind:"scenario",
+        tip:"Match maintenance action to printer type (laser=toner/kit, inkjet=printhead, thermal=heating element, impact=ribbon) — students often apply the wrong fix to the wrong printer type.",
+        checklist:["Laser: toner, maintenance kit, calibrate, clean","Inkjet: cartridge, printhead, roller, feeder","Thermal: feed assembly, special paper, heating element","Impact: ribbon, printhead, multipart paper"],
+        recall:[
+          {type:"short", q:"A technician notices a laser printer's output has a repeating pattern of dark spots or smudges appearing at regular intervals down the length of each page. Which component is the MOST likely cause, and what's the appropriate remediation?", a:"The imaging drum — a damaged, worn, or contaminated drum causes repeating defects spaced at intervals matching the drum's circumference. Remediation: replace the drum (often part of the toner cartridge assembly, or a separate component in a maintenance kit)."},
+          {type:"short", q:"A technician is troubleshooting a laser printer where toner smears easily and can be wiped off the page, or appears loosely bonded to the paper. Which component is the MOST likely cause, and what's the appropriate remediation?", a:"The fuser — a failing or under-temperature fuser doesn't properly melt and bond the toner to the page, so it smears or wipes off. Remediation: replace the fuser assembly, typically included in a maintenance kit."},
+          {type:"short", q:"A receipt printer at a register stops printing correctly, with blank spots on the paper. What kind of printer is this most likely, and what should you check first?", a:"A thermal printer — check the heating element and confirm the correct heat-sensitive thermal paper is loaded correctly. Regular paper or the wrong orientation won't react to the heating element."}
+        ]},
+
+      {id:"4.1", domain:"4.0", title:"Explain virtualization concepts", roi:false, confuse:true, kind:"recall",
+        tip:"Type 1 (bare-metal) vs. Type 2 (hosted) hypervisors get reversed constantly — anchor Type 1 to 'runs directly on hardware, no host OS.'",
+        checklist:["VM purposes: sandbox, test/dev, app virtualization","Type 1 (bare-metal) vs. Type 2 (hosted) hypervisors","VDI desktop virtualization","Containers"],
+        recall:[
+          {type:"mc", q:"A hypervisor installed directly on server hardware, with no underlying host OS, is classified as which type?", options:["Type 2","Container","VDI","Type 1"], answer:3},
+          {type:"mc", q:"A company wants employees to access a full desktop OS remotely from thin clients, with the actual OS running centrally in the datacenter. What's this technology called?", options:["Sandbox","Type 2 hypervisor","VDI","Container"], answer:2},
+          {type:"mc", q:"What's the key difference between a container and a traditional VM?", options:["Containers share the host OS kernel and are lightweight; VMs each run a full separate guest OS","No meaningful difference","Containers require a Type 1 hypervisor, VMs don't","Containers include a full guest OS, VMs share the host OS"], answer:0}
+        ]},
+      {id:"4.2", domain:"4.0", title:"Summarize cloud computing concepts", roi:true, confuse:true, kind:"recall",
+        tip:"IaaS vs. PaaS vs. SaaS is the classic confusion pair across every CompTIA exam — 'I manage the OS' vs. 'I manage the app' vs. 'I manage nothing' is the fastest way to sort them.",
+        checklist:["Private, public, hybrid, community cloud","IaaS vs. PaaS vs. SaaS","Shared vs. dedicated resources","Metered utilization (ingress/egress)","Elasticity, availability, multitenancy"],
+        recall:[
+          {type:"mc", q:"A company uses Gmail for business email, entirely managed by Google with no server or software maintenance on their end. What cloud service model is this?", options:["IaaS","On-premises","PaaS","SaaS"], answer:3},
+          {type:"mc", q:"A developer rents virtual machines, storage, and networking from a cloud provider, but installs and manages their own OS and applications on top. What service model is this?", options:["IaaS","SaaS","VDI","PaaS"], answer:0},
+          {type:"mc", q:"A cloud environment automatically scales resources up during high traffic and back down when demand drops, with no manual intervention. What characteristic is being described?", options:["Multitenancy","Community cloud","Elasticity","Metered utilization"], answer:2}
+        ]},
+
+      {id:"5.1", domain:"5.0", title:"Troubleshoot motherboards, RAM, CPUs, and power", roi:true, confuse:false, kind:"scenario",
+        tip:"Symptom-to-cause mapping (POST beep codes, capacitor swelling, random shutdown) — this domain is 28% of the exam, weight your study time accordingly.",
+        checklist:["POST beep codes","Blank screen / no power","Sluggish performance / overheating","Random shutdown / app crashes","Capacitor swelling","Inaccurate system date/time"],
+        recall:[
+          {type:"short", q:"A desktop won't power on at all — no lights, no fans, nothing. Before assuming the motherboard is bad, what two simple things should you check first?", a:"The power cable/outlet (is it actually getting power — try a different outlet or known-good cable) and the PSU's physical power switch on the back (a 0/1 switch that's easy to accidentally bump off). These are the cheapest, fastest checks before digging further."},
+          {type:"short", q:"A computer keeps losing the correct date and time every time it's powered off, even after being manually corrected. What component is likely the cause?", a:"The CMOS battery — a small coin-cell battery on the motherboard. When it's dead or dying, the board can't retain BIOS settings, including the clock, while powered off."},
+          {type:"short", q:"A PC randomly shuts down under heavy load (gaming, video editing) but runs fine for light tasks. What's the likely category of cause, and what would you check first?", a:"Overheating — check that fans are spinning, heatsinks aren't clogged with dust, and thermal paste hasn't degraded. Also verify the PSU has enough wattage for the load, since an undersized PSU can cause shutdowns under heavy draw too."}
+        ]},
+      {id:"5.2", domain:"5.0", title:"Troubleshoot drive and RAID issues", roi:true, confuse:true, kind:"scenario",
+        tip:"Connects directly back to 3.4 — if RAID levels were missed there, this objective will be missed too. Study them together.",
+        checklist:["LED status indicators","Grinding/clicking noises","Bootable device not found","Data loss/corruption","RAID failure / S.M.A.R.T. failure","Missing drives / array missing"],
+        recall:[
+          {type:"short", q:"A mechanical hard drive starts making a repeated clicking or grinding noise, and the system becomes unresponsive shortly after. What's the likely explanation, and what should you do first?", a:"A classic sign of physical drive failure (often called the 'click of death') — the read/write heads may be failing or the platters are damaged. First step: back up any accessible data immediately, since the drive could fail completely at any moment. Don't keep running it hoping it recovers."},
+          {type:"short", q:"A RAID 5 array shows one drive as 'failed' in the controller status, but the array is still online and accessible. What should you do, and why is this urgent?", a:"Replace the failed drive as soon as possible and let the array rebuild. RAID 5 can only tolerate a single drive failure — if a second drive fails before the first is replaced and rebuilt, the entire array and all its data is lost."},
+          {type:"short", q:"A system that used to boot fine now shows 'no bootable device found.' What are two likely causes to check, in order of how quick they are to rule out?", a:"First check the boot order in BIOS/UEFI — a setting change or a newly added drive can shift priority. If that's fine, check whether the boot drive is even detected in BIOS at all; if it's not, that points to a drive or cable/connection failure rather than a settings issue."}
+        ]},
+      {id:"5.3", domain:"5.0", title:"Troubleshoot video, projector, and display issues", roi:false, confuse:false, kind:"scenario",
+        tip:"Mostly straightforward symptom matching — cabling and input source issues are the most commonly tested.",
+        checklist:["Incorrect input source","Cabling issues","Burnt-out bulb","Fuzzy/distorted image","Dead pixels / burn-in","Dim image / flashing screen"],
+        recall:[
+          {type:"short", q:"A conference room projector shows a blue 'no signal' screen even though a laptop is plugged in and powered on. What's the most common cause to check first?", a:"The projector's input source setting — it's likely set to a different input (HDMI2, VGA, etc.) than the one the laptop is actually connected to. Cycling through inputs on the remote/menu usually resolves it before you assume a hardware fault."},
+          {type:"short", q:"An older projector's image has become noticeably dim compared to before. What component is the likely cause, and what's the fix?", a:"The projector bulb (lamp) — it naturally dims and eventually burns out with use; most are rated for a set number of hours. The fix is replacing the bulb, a routine maintenance item rather than a sign of bigger hardware failure."},
+          {type:"short", q:"A monitor shows a single pixel that's always black no matter what's on screen, while everything else displays normally. What's this called, and is it typically repairable?", a:"A dead pixel — the pixel itself has failed and isn't receiving power/signal correctly. It's generally not fixable through software; it would require panel replacement, which usually isn't cost-effective for a single pixel."}
+        ]},
+      {id:"5.4", domain:"5.0", title:"Troubleshoot common mobile device issues", roi:false, confuse:false, kind:"scenario",
+        tip:"Ties back to 1.1 — battery and charging symptoms repeat across both objectives.",
+        checklist:["Poor/swollen battery","Broken screen / digitizer issues","Poor connectivity","Liquid damage","Overheating","Malware","Degraded performance"],
+        recall:[
+          {type:"short", q:"A user's phone case no longer sits flush against the back of the phone, and the phone feels warm even when idle. What should you check immediately, and why is this urgent?", a:"Check the battery for swelling — a swollen battery pushes the back panel outward and can make the device feel warm. This is urgent because a swollen lithium battery is a fire/safety hazard, not just a performance issue; power the device off and address the battery right away."},
+          {type:"short", q:"A phone's touchscreen registers taps in the wrong location, or doesn't respond in certain areas, even though the display shows images correctly. What component is likely at fault?", a:"The digitizer — a separate layer from the display panel that detects touch input. It can fail or get damaged (often from a drop) independently of the screen still displaying correctly."},
+          {type:"short", q:"A user's phone fell in a puddle. It powers on but behaves erratically — random restarts, apps crashing. What's the appropriate immediate action, and why?", a:"Power it off immediately and don't attempt to charge it — liquid damage can cause a short circuit that gets worse with continued power or charging. Let it dry completely (ideally get it professionally assessed) before attempting to power it back on."}
+        ]},
+      {id:"5.5", domain:"5.0", title:"Troubleshoot network issues", roi:true, confuse:false, kind:"scenario",
+        tip:"Practice distinguishing similar-sounding symptoms: intermittent connectivity vs. limited connectivity vs. high latency each point to a different root cause.",
+        checklist:["Intermittent wireless connectivity","Slow speeds / limited connectivity","Jitter / high latency","Poor VoIP quality","Port flapping","Authentication failures"],
+        recall:[
+          {type:"short", q:"A user's Wi-Fi drops and reconnects every few minutes throughout the day, but works fine when plugged in via Ethernet. What are two likely causes to investigate?", a:"Wireless interference (other devices/networks on the same channel, or physical obstructions/distance from the AP) and outdated or flaky Wi-Fi drivers/firmware on the device or access point. Since wired works fine, the issue is isolated to the wireless path specifically."},
+          {type:"short", q:"During a VoIP call, the user hears choppy audio with words cutting in and out, though the call never fully drops. What network condition is most likely responsible?", a:"Jitter (variable latency) — VoIP is highly sensitive to inconsistent packet arrival timing, even when overall bandwidth seems fine. This is different from a bandwidth shortage, which would more likely cause a full disconnect or severe lag rather than choppiness."},
+          {type:"short", q:"A switch port's status light keeps rapidly turning on and off, and monitoring shows the port going up and down repeatedly. What's this called, and what's a common cause?", a:"Port flapping — commonly caused by a bad cable, a failing NIC on the connected device, or a duplex/speed mismatch between the switch port and the device."}
+        ]},
+      {id:"5.6", domain:"5.0", title:"Troubleshoot printer issues", roi:false, confuse:false, kind:"scenario",
+        tip:"Direct extension of 3.7/3.8 — if those were missed, review them alongside this objective.",
+        checklist:["Lines/garbled/faded prints","Paper jams / feed issues","Multiple prints pending / frozen queue","Speckling / double images","Grinding noise","Incorrect orientation","Connectivity issues"],
+        recall:[
+          {type:"short", q:"Several print jobs are stuck in the queue and nothing will print, even after restarting the job. What's the standard troubleshooting sequence to clear this?", a:"Stop and restart the Print Spooler service, clearing any stuck jobs from the queue folder if needed, then try printing again. This resolves the vast majority of 'stuck queue' issues without touching the printer itself."},
+          {type:"short", q:"A page prints with text or images doubled or ghosted, slightly offset from the original, almost like a shadow. What's this symptom called, and what part of the printer usually needs attention?", a:"Ghosting (or doubling) — on a laser printer, it usually points to a worn or damaged drum unit that isn't fully discharging between print cycles, causing a faint repeat image spaced at intervals matching the drum."},
+          {type:"short", q:"A printer that used to work over the network suddenly can't be found by any computer, though its display shows it's powered on and idle. What's the first thing to check?", a:"Confirm the printer still has a valid, unchanged IP address and is actually connected to the network (cable seated, or Wi-Fi still associated). A DHCP lease renewal assigning a new IP is a very common cause of a printer 'disappearing' from clients still pointing to the old address."}
+        ]}
+    ]
+  },
+  /* ============================================================
+     CONTENT BANK — CompTIA CySA+ (CS0-004), V4
+     Replaces the CS0-003 bank (29 September 2026). Domains, weights,
+     objective titles and every checklist item are taken from the
+     owner's "All updated Objectives" document, in its wording.
+     NUMBERS UNCONFIRMED: that document gives the objectives no
+     numbers. 1.1, 1.2... are assigned here in the document's order
+     and have NOT been checked against CompTIA's official objectives
+     PDF or a real score report. numbersUnconfirmed tells the page to
+     say so to the student. When confirmed, fix any that differ and
+     set it to false.
+     Keyed "cysa-v4", not "cysa", so a CS0-003 plan a student saved
+     on their device is never reopened against these numbers.
+     "roi", "confuse", "kind" and "tip" are instructor judgment
+     calls — review and edit these before relying on them.
+     ============================================================ */
+  "cysa-v4": {
+    name: "CompTIA CySA+ (CS0-004)",
+    numbersUnconfirmed: true,
+    domains: [
+      {id:"1.0", name:"Security Operations", weight:34},
+      {id:"2.0", name:"Vulnerability Management", weight:26},
+      {id:"3.0", name:"Incident Response and Management", weight:24},
+      {id:"4.0", name:"Reporting and Communication", weight:16}
+    ],
+    objectives: [
+      {id:"1.1", domain:"1.0", title:"Explain system and network architecture concepts in security operations", roi:false, confuse:true, kind:"recall",
+        tip:"Three strands: architecture, identity and logging. For every component you study, answer two questions — what does it protect, and what record does it leave behind for an analyst to read?",
+        checklist:["Security architecture components","Identity concepts","Logging practices that support secure environments"]},
+      {id:"1.2", domain:"1.0", title:"Analyze indicators of potential malicious activity", roi:true, confuse:false, kind:"scenario",
+        tip:"Sort before you name. Decide where the evidence came from — network, endpoint, cloud or identity — before deciding what the attack is. Where it came from tells you which log to read next.",
+        checklist:["Suspicious activity across networks","Suspicious activity on endpoints","Suspicious activity in cloud","Suspicious activity in identity systems"]},
+      {id:"1.3", domain:"1.0", title:"Use tools to determine malicious activity", roi:true, confuse:true, kind:"scenario",
+        tip:"Pick the tool by the question. A SIEM correlates across many sources, EDR shows what happened on one host, packet analysis shows what crossed the wire, and a threat intelligence platform tells you whether an indicator is already known.",
+        checklist:["SIEM","EDR","Packet analysis tools","Threat intelligence platforms"]},
+      {id:"1.4", domain:"1.0", title:"Explain threat intelligence and threat-hunting concepts", roi:false, confuse:true, kind:"recall",
+        tip:"Keep the two apart. Threat intelligence is what is already known about a threat; threat hunting is going looking for it in your own environment before any alert fires.",
+        checklist:["Frameworks","Data sources","Methods used to identify and investigate threats"]},
+      {id:"1.5", domain:"1.0", title:"Describe efficiency and process improvement in security operations", roi:false, confuse:false, kind:"recall",
+        tip:"Study the why before the how. For each item, say which repetitive analyst task it takes away, and what goes wrong if it is automated badly.",
+        checklist:["Automation","Workflows","Processes used to improve operational efficiency"]},
+      {id:"1.6", domain:"1.0", title:"Summarize concepts related to the use of AI in security operations", roi:false, confuse:false, kind:"recall",
+        tip:"Ask three things of every AI example: what is it used for, what can go wrong with it, and who is accountable for it. This objective is new since CS0-003, so older study guides will not cover it.",
+        checklist:["AI use cases","AI risks","AI governance considerations"]},
+
+      {id:"2.1", domain:"2.0", title:"Implement the appropriate vulnerability scanning method", roi:true, confuse:true, kind:"scenario",
+        tip:"The word that matters is \"appropriate\". For any scan, be able to say why that method fits that target, and what a different method would miss or disrupt.",
+        checklist:["Tools used to identify vulnerabilities","Techniques used to identify vulnerabilities","Vulnerabilities across systems","Vulnerabilities across networks","Vulnerabilities across applications"]},
+      {id:"2.2", domain:"2.0", title:"Analyze output from vulnerability assessment tools", roi:true, confuse:true, kind:"scenario",
+        tip:"Read scan output as evidence, not as a verdict. For each finding ask: is it real, does it apply to this asset, and what would prove it either way?",
+        checklist:["Vulnerabilities identified through scan results","Findings identified through scan results","Security gaps identified through scan results"]},
+      {id:"2.3", domain:"2.0", title:"Prioritize and mitigate vulnerabilities", roi:true, confuse:true, kind:"scenario",
+        tip:"A score is where prioritizing starts, not where it ends. Rank the same list twice — once by score alone, once with threat intelligence and business context added — and explain every place the order changed.",
+        checklist:["Risk-based approaches","Scoring systems","Threat intelligence","Business context"]},
+      {id:"2.4", domain:"2.0", title:"Explain concepts related to control types, risks, and vulnerability management", roi:false, confuse:true, kind:"recall",
+        tip:"Classify, don't memorize. Take a real control, say what type it is and what it does, then do the same for the next one.",
+        checklist:["Controls","Policies","Compliance practices used to manage risk"]},
+
+      {id:"3.1", domain:"3.0", title:"Summarize concepts related to attack methodology frameworks", roi:false, confuse:true, kind:"recall",
+        tip:"Both describe attacker behaviour from different angles. The Cyber Kill Chain is a sequence of stages; MITRE ATT&CK is a catalogue of tactics and techniques. Know which one answers \"how far did they get?\" and which answers \"what exactly did they do?\"",
+        checklist:["Attack methodology models","MITRE ATT&CK","Cyber Kill Chain"]},
+      {id:"3.2", domain:"3.0", title:"Outline the incident response process", roi:true, confuse:true, kind:"recall",
+        tip:"Learn the phases as an order, not a list, then practise placing a single action into its phase. \"What should the analyst do next?\" needs the order.",
+        checklist:["Preparation","Detection","Analysis","Containment","Eradication","Recovery"]},
+      {id:"3.3", domain:"3.0", title:"Implement incident response techniques", roi:true, confuse:false, kind:"scenario",
+        tip:"Walk one incident end to end and name the technique at each step. Evidence handling is the easiest to get wrong under pressure — decide what you would preserve before you decide what you would fix.",
+        checklist:["Triage","Evidence handling","Escalation","Remediation","Root cause identification"]},
+
+      {id:"4.1", domain:"4.0", title:"Explain vulnerability management reporting and communication", roi:false, confuse:false, kind:"recall",
+        tip:"For every report or dashboard, name its audience. The same finding is written differently for the team that fixes it and for the manager who pays for the fix.",
+        checklist:["Reports","Dashboards","Communication activities used to present findings","Communication that supports escalation during security events"]},
+      {id:"4.2", domain:"4.0", title:"Describe security operations, incident response reporting, and communication", roi:false, confuse:true, kind:"recall",
+        tip:"The three metrics blur easily. Write each as a plain question: how long until we knew, how long until we acted, and did the fix actually work?",
+        checklist:["Incident documentation","Post-incident reviews","Metric: detection time","Metric: response time","Metric: remediation effectiveness"]}
+    ]
+  },
+
+  /* ============================================================
+     CONTENT BANK — CompTIA Security+ V8
+     New, 29 September 2026. Domains, weights, objective titles and
+     every checklist item are taken from the owner's "All updated
+     Objectives" document, in its wording. The document names the
+     exam "Security+ (V8)" and gives no exam code, so none is shown.
+     NUMBERS UNCONFIRMED: the document gives the objectives no
+     numbers. 1.1, 1.2... are assigned here in the document's order
+     and have NOT been checked against CompTIA's official objectives
+     PDF or a real score report. When confirmed, fix any that differ
+     and set numbersUnconfirmed to false.
+     "roi", "confuse", "kind" and "tip" are instructor judgment
+     calls — review and edit these before relying on them.
+     ============================================================ */
+  "secplus-v8": {
+    name: "CompTIA Security+ (V8)",
+    numbersUnconfirmed: true,
+    domains: [
+      {id:"1.0", name:"General Security Concepts", weight:16},
+      {id:"2.0", name:"Threats, Vulnerabilities, and Attacks", weight:24},
+      {id:"3.0", name:"Security Architecture", weight:19},
+      {id:"4.0", name:"Security Operations", weight:27},
+      {id:"5.0", name:"Security Program Management and Oversight", weight:14}
+    ],
+    objectives: [
+      {id:"1.1", domain:"1.0", title:"Compare and contrast various types of security controls", roi:false, confuse:true, kind:"recall",
+        tip:"\"Compare and contrast\" means pairs. Take one control, say what type it is and what it does, then name the neighbouring control people mistake it for.",
+        checklist:["Layered security controls","How controls work together to protect systems","How controls work together to protect data"]},
+      {id:"1.2", domain:"1.0", title:"Demonstrate the impact of change management processes on security", roi:false, confuse:false, kind:"scenario",
+        tip:"Think in consequences. For each step, say what goes wrong for security when it is skipped.",
+        checklist:["Planning","Testing","Approvals","Documentation"]},
+      {id:"1.3", domain:"1.0", title:"Explain the importance of using appropriate cryptographic solutions", roi:true, confuse:true, kind:"recall",
+        tip:"Hashing, encryption and digital signatures are the set people mix up. For each, say what it protects or proves — confidentiality, integrity, or who sent it — before learning any algorithm names.",
+        checklist:["Encryption","Certificates","Hashing","Digital signatures","Key management practices"]},
+
+      {id:"2.1", domain:"2.0", title:"Compare and contrast common threat actors and motivations", roi:false, confuse:true, kind:"recall",
+        tip:"Anchor each actor to a motive rather than to how skilled they are. The motive is often the clue a scenario gives you.",
+        checklist:["Who conducts attacks","Why organizations are targeted"]},
+      {id:"2.2", domain:"2.0", title:"Explain common threat vectors and attack surfaces", roi:true, confuse:false, kind:"recall",
+        tip:"A vector is the way in; the attack surface is everything that could be a way in. For each target below, name one way in.",
+        checklist:["Attacks that target users","Attacks that target systems","Attacks that target applications","Attacks that target networks","Attacks that target cloud resources","Attacks that target supply chains"]},
+      {id:"2.3", domain:"2.0", title:"Analyze indicators of malicious activity", roi:true, confuse:true, kind:"scenario",
+        tip:"Work from the sign back to the cause. Given a symptom, list what could produce it, then find the detail in the scenario that rules the others out.",
+        checklist:["Signs associated with malware","Signs associated with social engineering","Signs associated with credential attacks","Signs associated with other security threats"]},
+      {id:"2.4", domain:"2.0", title:"Examine common vulnerabilities and associated risks", roi:true, confuse:false, kind:"scenario",
+        tip:"Pair each vulnerability with the risk it creates and the fix that removes the cause, not just the symptom.",
+        checklist:["Evaluating vulnerabilities","Determining mitigation priorities"]},
+      {id:"2.5", domain:"2.0", title:"Explain the security risks associated with artificial intelligence (AI)", roi:false, confuse:false, kind:"recall",
+        tip:"For each item below, describe one way it goes wrong and who could be harmed. This objective is new since SY0-701, so older study guides will not cover it.",
+        checklist:["Risks related to AI systems","Risks related to AI models","Risks related to prompts","Risks related to privacy","Risks related to data exposure"]},
+
+      {id:"3.1", domain:"3.0", title:"Compare and contrast security implications of different architecture models", roi:false, confuse:true, kind:"recall",
+        tip:"Ask the same two questions of every model: who is responsible for securing each layer, and what cannot be patched or changed quickly? Operational technology is where the second question bites hardest.",
+        checklist:["Cloud","Hybrid","On-premises","Operational technology environments"]},
+      {id:"3.2", domain:"3.0", title:"Apply security principles to secure enterprise infrastructure", roi:true, confuse:false, kind:"scenario",
+        tip:"Draw it. Sketch a small network and put each item on the drawing — where the segment boundary is, where access is checked, how remote users connect.",
+        checklist:["Secure system design","Access controls","Segmentation","Connectivity"]},
+      {id:"3.3", domain:"3.0", title:"Understand concepts related to data protection", roi:false, confuse:false, kind:"recall",
+        tip:"Follow one piece of sensitive data from the day it is created to the day it is destroyed, and name the protection at each stage.",
+        checklist:["Protecting sensitive information","The data lifecycle"]},
+      {id:"3.4", domain:"3.0", title:"Explain the importance of resilience and recovery in security architectures", roi:false, confuse:true, kind:"recall",
+        tip:"Redundancy keeps you running; backups get you back. They are not the same thing. And a recovery plan nobody has tested is a guess.",
+        checklist:["Backups","Redundancy","Recovery planning","Testing"]},
+
+      {id:"4.1", domain:"4.0", title:"Apply common security techniques to computing resources", roi:true, confuse:false, kind:"scenario",
+        tip:"For each resource below, name one technique and the specific threat it stops.",
+        checklist:["Endpoints","Networks","Applications","Data"]},
+      {id:"4.2", domain:"4.0", title:"Explain asset management concepts and practices", roi:false, confuse:false, kind:"recall",
+        tip:"You cannot protect what you don't know you have. Walk one laptop from purchase to disposal and note what security has to happen at each step.",
+        checklist:["Hardware assets","Software assets","Data assets","The asset lifecycle"]},
+      {id:"4.3", domain:"4.0", title:"Analyze indicators of vulnerabilities and implement appropriate mitigation strategies", roi:true, confuse:true, kind:"scenario",
+        tip:"The step people skip is the last one. Remediation is not finished until you have checked that the fix actually worked.",
+        checklist:["Identify","Prioritize","Remediate","Validate"]},
+      {id:"4.4", domain:"4.0", title:"Describe security monitoring and alerting concepts", roi:true, confuse:false, kind:"recall",
+        tip:"Keep the chain straight: logs are the raw record, alerts are rules firing on that record, dashboards summarize both. Know what each tool adds to the chain.",
+        checklist:["Logs","Alerts","Dashboards","Security tools"]},
+      {id:"4.5", domain:"4.0", title:"Manage identity and access controls", roi:true, confuse:true, kind:"scenario",
+        tip:"Get authentication and authorization straight first — proving who you are versus what you are allowed to do. Federation and privileged access management both build on that difference.",
+        checklist:["Authentication","Authorization","Federation","Privileged access management"]},
+      {id:"4.6", domain:"4.0", title:"Explain the importance of automation and orchestration in security operations", roi:false, confuse:false, kind:"recall",
+        tip:"For each automated task, say what it saves, and what could break if it runs on bad input with nobody watching.",
+        checklist:["Automation","Integrations","AI-assisted workflows"]},
+      {id:"4.7", domain:"4.0", title:"Implement incident response activities", roi:true, confuse:true, kind:"scenario",
+        tip:"Learn the order, then practise placing a single action into the right step. Containment comes before recovery, and lessons learned comes after — never skipped.",
+        checklist:["Preparation","Detection","Containment","Recovery","Lessons learned"]},
+      {id:"4.8", domain:"4.0", title:"Use data sources to support investigations", roi:true, confuse:false, kind:"scenario",
+        tip:"For each data source, know which question it can answer and which it cannot. Then choose the source by the question.",
+        checklist:["Analyzing evidence","Security data during investigations"]},
+
+      {id:"5.1", domain:"5.0", title:"Define elements of an effective security governance program", roi:false, confuse:true, kind:"recall",
+        tip:"These four blur together. The policy says what and why, the standard sets the required measure, the procedure says how, and guidance advises.",
+        checklist:["Policies","Standards","Procedures","Security guidance"]},
+      {id:"5.2", domain:"5.0", title:"Manage security risk management processes and concepts", roi:false, confuse:true, kind:"recall",
+        tip:"Assess, communicate, manage — in that order. Practise explaining one risk to a manager in two sentences.",
+        checklist:["Assessing risk","Communicating risk","Managing organizational risk"]},
+      {id:"5.3", domain:"5.0", title:"Explain third-party risk management concepts", roi:false, confuse:false, kind:"recall",
+        tip:"Evaluation happens before the contract is signed; monitoring carries on after it. Know what you would check at each point.",
+        checklist:["Evaluating vendor and partner security risks","Monitoring vendor and partner security risks"]},
+      {id:"5.4", domain:"5.0", title:"Support security compliance and privacy considerations", roi:false, confuse:false, kind:"recall",
+        tip:"For each requirement, know who sets it and what happens when it is missed.",
+        checklist:["Regulatory requirements","Legal requirements","Compliance requirements","Privacy requirements"]},
+      {id:"5.5", domain:"5.0", title:"Compare and contrast audits and assessments", roi:false, confuse:true, kind:"recall",
+        tip:"For each, say who performs it, how independent they are, and what it produces.",
+        checklist:["Audits","Reviews","Testing","Assessments"]},
+      {id:"5.6", domain:"5.0", title:"Promote security awareness practices", roi:false, confuse:false, kind:"recall",
+        tip:"Know how you would tell whether an awareness programme is working, not just that it exists.",
+        checklist:["Security education","Security awareness"]}
+    ]
+  }
+};
+
+// Passing scores per exam — used to auto-detect a near-miss without asking
+// the student an extra question, since they already enter their score.
+const PASSING_SCORES = {
+  "aplus-1201": 675,
+  "aplus-1202": 700,
+  "netplus": 725,
+  // Security+ V8: 750 is carried over from SY0-701 and is an ASSUMPTION
+  // until CompTIA publishes the V8 passing score. CySA+ CS0-004: 750.
+  "secplus-v8": 750,
+  "cysa-v4": 750
+};
+
+let state = {selectedIds:new Set(), studentInfo:{}, planDays:[], startDate:null, completedDayIndices:new Set(), recallResults:{}, expandedDay:0, isTriage:false, pointsBehind:null, appendixObjectiveIds:[]};
+const tabId = 'tab_'+Math.random().toString(36).slice(2);
+let tabWatchInterval = null;
+
+// Centralizes "today" so the tool's own testing hook (below) can fast-forward
+// simulated time without touching the real system clock. Not exposed in any
+// UI — console-only, for instructor testing.
+function getToday(){
+  const d = new Date(Date.now() + (window.__rpDebugOffset||0)*86400000);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+// TESTING ONLY — not linked from any visible button or menu on the student
+// side. Two ways in, both hidden:
+//   1) Press Ctrl+Shift+D to reveal a small floating testing panel.
+//   2) Or use the browser console directly: __rpAdvanceDay(1), __rpResetDay().
+// This only affects what this tool thinks "today" is — your computer's
+// actual clock, and every other app, is untouched.
+window.__rpAdvanceDay = function(days){
+  window.__rpDebugOffset = (window.__rpDebugOffset||0) + (days||1);
+  if(document.getElementById('step3').style.display === 'block'){
+    renderPlanSummary();
+    renderAccordion();
+  }
+  console.log('[retake-planner] simulated day advanced by', days||1, '— total offset:', window.__rpDebugOffset, 'day(s)');
+};
+window.__rpResetDay = function(){
+  window.__rpDebugOffset = 0;
+  if(document.getElementById('step3').style.display === 'block'){
+    renderPlanSummary();
+    renderAccordion();
+  }
+  console.log('[retake-planner] simulated day reset to real time.');
+};
+
+function updateDebugPanel(){
+  const label = document.getElementById('debug-offset-label');
+  if(label) label.textContent = 'Simulated: +' + (window.__rpDebugOffset||0) + ' day' + ((window.__rpDebugOffset||0)===1?'':'s');
+}
+
+window.addEventListener('keydown', (e)=>{
+  if(e.ctrlKey && e.shiftKey && (e.key==='D' || e.key==='d')){
+    const panel = document.getElementById('debug-panel');
+    if(!panel) return;
+    const showing = panel.style.display === 'block';
+    panel.style.display = showing ? 'none' : 'block';
+    if(!showing) updateDebugPanel();
+  }
+});
+
+// Detects another tab/window with the same exam's plan open, using the
+// `storage` event, which only fires in OTHER tabs — perfect for this.
+function startTabWatch(examId){
+  if(!examId) return;
+  const key = 'retakePlanner_activeTab_'+examId;
+  if(tabWatchInterval) clearInterval(tabWatchInterval);
+  const beat = ()=>{ try{ localStorage.setItem(key, JSON.stringify({tabId, ts:Date.now()})); }catch(e){} };
+  beat();
+  tabWatchInterval = setInterval(beat, 3000);
+  window.addEventListener('storage', (e)=>{
+    if(e.key === key && e.newValue){
+      try{
+        const data = JSON.parse(e.newValue);
+        if(data.tabId !== tabId && (Date.now()-data.ts) < 8000){
+          const w = document.getElementById('tab-warning');
+          if(w) w.style.display = 'block';
+        }
+      }catch(err){}
+    }
+  });
+}
+
+function goToStep1(){
+  document.getElementById('step1').style.display='block';
+  document.getElementById('step2').style.display='none';
+  document.getElementById('step3').style.display='none';
+}
+
+function goToStep2(){
+  const name = document.getElementById('s-name').value.trim();
+  const retake = document.getElementById('s-retake').value;
+  const err = document.getElementById('step1-error');
+  if(!name || !retake){
+    err.textContent = "Enter your name and a planned retake date to continue.";
+    return;
+  }
+  const today = getToday();
+  const retakeDate = new Date(retake+"T00:00:00");
+  if(retakeDate <= today){
+    err.textContent = "Retake date should be in the future.";
+    return;
+  }
+  err.textContent = "";
+  state.studentInfo = {
+    name,
+    exam: document.getElementById('s-exam').value,
+    score: document.getElementById('s-score').value,
+    retake
+  };
+  document.getElementById('step1').style.display='none';
+  document.getElementById('step2').style.display='block';
+  renderManualChecklist();
+}
+
+function renderManualChecklist(container){
+  const exam = EXAM_DATA[state.studentInfo.exam];
+  const wrap = document.getElementById('manual-adjust');
+  document.getElementById('numbers-caution').innerHTML = exam.numbersUnconfirmed
+    ? `<div class="numbers-caution" role="note"><b>Check the titles, not just the numbers.</b> The objective numbers for ${exam.name} follow the order of the objectives list and haven't been checked against CompTIA's official numbering yet. After matching, compare each title below with the title on your score report, and fix any ticks that don't line up.</div>`
+    : '';
+  let html = '<div class="hint" style="margin-top:14px;">Or check objectives manually / adjust matches below:</div>';
+  exam.domains.forEach(dom=>{
+    html += `<div class="domain-block"><h4>${dom.id} ${dom.name} — ${dom.weight}%</h4>`;
+    exam.objectives.filter(o=>o.domain===dom.id).forEach(o=>{
+      const checked = state.selectedIds.has(o.id) ? 'checked' : '';
+      html += `<label class="obj-check">
+        <input type="checkbox" value="${o.id}" ${checked} onchange="toggleObjective('${o.id}', this.checked)">
+        <span><b class="mono">${o.id}</b> ${o.title}
+          <span class="flags">
+            ${o.roi ? '<span class="flag roi">HIGH ROI</span>' : ''}
+            ${o.confuse ? '<span class="flag confuse">OFTEN CONFUSED</span>' : ''}
+          </span>
+        </span>
+      </label>`;
+    });
+    html += '</div>';
+  });
+  wrap.innerHTML = html;
+}
+
+function toggleObjective(id, checked){
+  if(checked) state.selectedIds.add(id); else state.selectedIds.delete(id);
+  document.getElementById('continue-step3').disabled = state.selectedIds.size === 0;
+}
+
+function parseObjectives(){
+  const exam = EXAM_DATA[state.studentInfo.exam];
+  const raw = document.getElementById('s-paste').value;
+  const found = raw.match(/\d\.\d/g) || [];
+  const matched = [];
+  const unmatched = [];
+  const uniqueFound = [...new Set(found)];
+  uniqueFound.forEach(f=>{
+    if(exam.objectives.some(o=>o.id===f)){
+      matched.push(f);
+      state.selectedIds.add(f);
+    } else {
+      unmatched.push(f);
+    }
+  });
+
+  let html = '';
+  if(matched.length){
+    html += '<div class="hint" style="margin-bottom:4px;">Matched:</div><div class="chip-row">';
+    matched.forEach(m=>{ html += `<span class="chip">${m}</span>`; });
+    html += '</div>';
+  }
+  if(unmatched.length){
+    html += '<div class="hint" style="margin:10px 0 4px;">Couldn\'t confidently match these — check them manually below:</div><div class="chip-row">';
+    unmatched.forEach(m=>{ html += `<span class="chip unmatched">${m}</span>`; });
+    html += '</div>';
+  }
+  if(!found.length){
+    html += '<div class="hint">No objective numbers detected in that text. Use the checklist below to select what you missed.</div>';
+  }
+  document.getElementById('match-results').innerHTML = html;
+  renderManualChecklist();
+  document.getElementById('continue-step3').disabled = state.selectedIds.size === 0;
+}
+
+function goToStep3(){
+  document.getElementById('step2').style.display='none';
+  document.getElementById('step3').style.display='block';
+
+  const exam = EXAM_DATA[state.studentInfo.exam];
+  const selected = exam.objectives.filter(o=>state.selectedIds.has(o.id));
+
+  const scored = selected.map(o=>{
+    const dom = exam.domains.find(d=>d.id===o.domain);
+    let score = dom.weight;
+    if(o.confuse) score += 8;
+    if(o.roi) score += 6;
+    return {...o, domainName:dom.name, score};
+  }).sort((a,b)=>b.score-a.score);
+
+  const today = getToday();
+  const retakeDate = new Date(state.studentInfo.retake+"T00:00:00");
+  const daysUntil = Math.round((retakeDate - today)/86400000);
+
+  // Auto-detect a near-miss from the score they already entered — no extra
+  // question needed. Triage mode only kicks in when BOTH the score gap is
+  // small AND the runway is short; either alone stays in the standard flow.
+  const scoreNum = parseInt(state.studentInfo.score, 10);
+  const passingScore = PASSING_SCORES[state.studentInfo.exam];
+  const pointsBehind = (!isNaN(scoreNum) && passingScore) ? (passingScore - scoreNum) : null;
+  const isTriage = (pointsBehind !== null && pointsBehind >= 0 && pointsBehind <= 50 && daysUntil <= 3);
+
+  const planObjectives = isTriage ? scored.slice(0,5) : scored;
+  const appendixObjectives = isTriage ? scored.slice(5) : [];
+
+  const taper = planTaper(daysUntil);
+  const days = [];
+  if(taper.studyDays > 0){
+    buildStudyPlan(planObjectives, taper.studyDays).forEach(d=>{
+      const objs = d.objectives.length > 1 ? diversifyChunk(d.objectives) : d.objectives;
+      days.push({type:'study', objectives:objs, reinforce:d.reinforce||false});
+    });
+  }
+  if(taper.hasPractice) days.push({type:'practice'});
+  if(taper.hasLight) days.push({type:'light'});
+
+  state.planDays = days;
+  state.startDate = today.toISOString().slice(0,10);
+  state.completedDayIndices = new Set();
+  state.recallResults = {};
+  state.expandedDay = 0;
+  state.isTriage = isTriage;
+  state.pointsBehind = pointsBehind;
+  state.appendixObjectiveIds = appendixObjectives.map(o=>o.id);
+
+  savePlanState();
+  startTabWatch(state.studentInfo.exam);
+  renderPlanSummary();
+  renderAccordion();
+  renderAppendix();
+}
+
+// Taper toward test day: reserve a full practice exam ~2 days out and a
+// light, no-new-content day right before the retake. If the countdown is
+// too short for both, drop the practice exam and keep the light day.
+function planTaper(daysUntil){
+  if(daysUntil <= 1) return {studyDays:0, hasPractice:false, hasLight:true};
+  if(daysUntil === 2) return {studyDays:1, hasPractice:false, hasLight:true};
+  return {studyDays: daysUntil-2, hasPractice:true, hasLight:true};
+}
+
+// Produces a concrete study task instead of a generic category label,
+// based on whether the objective is recall-heavy or scenario/hands-on.
+function buildStudyAction(o){
+  const n = (o.checklist||[]).length || 1;
+  if(o.kind === 'scenario'){
+    return `<b>Do this:</b> Pick 2–3 items below and simulate the actual scenario — hands-on lab, VM, or walk through it step-by-step on paper. Narrate each step out loud as if training a new hire. Repeat with a different item until you don't hesitate.`;
+  }
+  return `<b>Do this:</b> Make one flashcard per item below (${n} total). Cover the answer, say it out loud, flip and check. Don't move on until every card takes under 3 seconds.`;
+}
+
+// Guarantees every selected objective appears at least once in the plan.
+// If there's enough days, higher-priority objectives get extra reinforcement
+// days. If there isn't enough days, objectives are bundled multiple-per-day
+// (highest priority first) rather than dropped.
+function buildStudyPlan(scored, studyDays){
+  const days = [];
+  if(!scored.length) return days;
+
+  if(studyDays >= scored.length){
+    // Interleave domains across the whole sequence (keeping priority as the
+    // tiebreak) so a run of same-domain days doesn't happen just because
+    // those objectives scored highest.
+    const ordered = diversifyChunk(scored);
+    ordered.forEach(o=>days.push({objectives:[o]}));
+    const leftover = studyDays - scored.length;
+    if(leftover > 0){
+      const pool = scored.filter(o=>o.confuse || o.roi);
+      const reinforcePool = pool.length ? pool : scored;
+      for(let i=0;i<leftover;i++){
+        days.push({objectives:[reinforcePool[i % reinforcePool.length]], reinforce:true});
+      }
+    }
+  } else {
+    const chunkSize = Math.ceil(scored.length / studyDays);
+    for(let d=0; d<studyDays; d++){
+      const chunk = scored.slice(d*chunkSize, (d+1)*chunkSize);
+      if(chunk.length) days.push({objectives:chunk});
+    }
+  }
+  return days;
+}
+
+// Reorders objectives within a single bundled day so consecutive items
+// don't share a domain where avoidable — interleaving topics instead of
+// grouping same-domain items back to back.
+function diversifyChunk(chunk){
+  const result = [];
+  const remaining = [...chunk];
+  while(remaining.length){
+    let idx = 0;
+    if(result.length){
+      const lastDomain = result[result.length-1].domain;
+      const altIdx = remaining.findIndex(o=>o.domain!==lastDomain);
+      if(altIdx !== -1) idx = altIdx;
+    }
+    result.push(remaining.splice(idx,1)[0]);
+  }
+  return result;
+}
+
+function formatDate(d){
+  return d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+}
+
+/* ============================================================
+   PERSISTENCE — device-local only (localStorage). Namespaced by
+   exam so a student retaking a different exam later doesn't
+   collide with old data. Auto-expires past the retake date.
+   ============================================================ */
+const SCHEMA_VERSION = 1;
+
+function storageAvailable(){
+  try{
+    const k='__rp_test__';
+    localStorage.setItem(k,'1');
+    localStorage.removeItem(k);
+    return true;
+  }catch(e){ return false; }
+}
+
+function storageKey(examId){ return 'retakePlanner_v'+SCHEMA_VERSION+'_'+examId; }
+
+function savePlanState(){
+  if(!storageAvailable()) return;
+  const data = {
+    schemaVersion: SCHEMA_VERSION,
+    studentInfo: state.studentInfo,
+    selectedIds: Array.from(state.selectedIds),
+    planDaysMeta: state.planDays.map(d=>({
+      type:d.type,
+      objectiveIds: d.objectives ? d.objectives.map(o=>o.id) : [],
+      reinforce: d.reinforce || false
+    })),
+    startDate: state.startDate,
+    completedDayIndices: Array.from(state.completedDayIndices),
+    recallResults: state.recallResults,
+    isTriage: state.isTriage,
+    pointsBehind: state.pointsBehind,
+    appendixObjectiveIds: state.appendixObjectiveIds
+  };
+  try{ localStorage.setItem(storageKey(state.studentInfo.exam), JSON.stringify(data)); }catch(e){}
+}
+
+function loadPlanState(examId){
+  try{
+    const raw = localStorage.getItem(storageKey(examId));
+    if(!raw) return null;
+    const data = JSON.parse(raw);
+    if(data.schemaVersion !== SCHEMA_VERSION){ localStorage.removeItem(storageKey(examId)); return null; }
+    const retakeDate = new Date(data.studentInfo.retake+"T00:00:00");
+    const today = getToday();
+    if(today > retakeDate){ localStorage.removeItem(storageKey(examId)); return null; }
+    return data;
+  }catch(e){ return null; }
+}
+
+function clearMyData(){
+  try{ localStorage.removeItem(storageKey(state.studentInfo.exam)); }catch(e){}
+  if(tabWatchInterval){ clearInterval(tabWatchInterval); tabWatchInterval=null; }
+  const tw = document.getElementById('tab-warning'); if(tw) tw.style.display='none';
+  state = {selectedIds:new Set(), studentInfo:{}, planDays:[], startDate:null, completedDayIndices:new Set(), recallResults:{}, expandedDay:0, isTriage:false, pointsBehind:null, appendixObjectiveIds:[]};
+  document.getElementById('s-name').value='';
+  document.getElementById('s-score').value='';
+  document.getElementById('s-retake').value='';
+  document.getElementById('resume-banner').innerHTML='';
+  const appendixEl = document.getElementById('plan-appendix'); if(appendixEl) appendixEl.innerHTML='';
+  goToStep1();
+}
+
+function showResumeBanner(examId, data){
+  const el = document.getElementById('resume-banner');
+  const exam = EXAM_DATA[examId];
+  el.innerHTML = `<div class="resume-card">
+    <p><b>${data.studentInfo.name}</b>, you have an in-progress plan for ${exam.name} (retake: ${data.studentInfo.retake}). Pick up where you left off?</p>
+    <div class="actions">
+      <button class="btn" onclick="resumePlan('${examId}')">Resume my plan</button>
+      <button class="btn secondary" onclick="dismissResume('${examId}')">Start fresh instead</button>
+    </div>
+  </div>`;
+}
+
+function dismissResume(examId){
+  try{ localStorage.removeItem(storageKey(examId)); }catch(e){}
+  document.getElementById('resume-banner').innerHTML='';
+}
+
+function resumePlan(examId){
+  const data = loadPlanState(examId);
+  if(!data) return;
+  const exam = EXAM_DATA[examId];
+  state.studentInfo = data.studentInfo;
+  state.selectedIds = new Set(data.selectedIds);
+  state.startDate = data.startDate;
+  state.completedDayIndices = new Set(data.completedDayIndices);
+  state.recallResults = data.recallResults || {};
+  state.isTriage = data.isTriage || false;
+  state.pointsBehind = (typeof data.pointsBehind === 'number') ? data.pointsBehind : null;
+  state.appendixObjectiveIds = data.appendixObjectiveIds || [];
+  state.planDays = data.planDaysMeta.map(m=>{
+    if(m.type === 'study'){
+      const objectives = m.objectiveIds.map(id=>exam.objectives.find(o=>o.id===id)).filter(Boolean);
+      return {type:'study', objectives, reinforce:m.reinforce};
+    }
+    return {type:m.type};
+  });
+  state.expandedDay = firstIncompleteIndex();
+
+  document.getElementById('step1').style.display='none';
+  document.getElementById('step2').style.display='none';
+  document.getElementById('step3').style.display='block';
+  startTabWatch(examId);
+  renderPlanSummary();
+  renderAccordion();
+  renderAppendix();
+}
+
+/* ============================================================
+   DAY-BY-DAY ACCORDION — locks future days until their real
+   calendar date, lets missed days roll forward as catch-up,
+   and wires the recall warm-up into each study day.
+   ============================================================ */
+function firstIncompleteIndex(){
+  for(let i=0;i<state.planDays.length;i++){ if(!state.completedDayIndices.has(i)) return i; }
+  return state.planDays.length ? state.planDays.length-1 : 0;
+}
+
+function computeUnlockedMax(){
+  const start = new Date(state.startDate+"T00:00:00");
+  const today = getToday();
+  const elapsed = Math.floor((today-start)/86400000);
+  return Math.min(state.planDays.length, Math.max(1, elapsed+1));
+}
+
+function renderPlanSummary(){
+  const exam = EXAM_DATA[state.studentInfo.exam];
+  const today = getToday();
+  const retakeDate = new Date(state.studentInfo.retake+"T00:00:00");
+  const daysUntil = Math.round((retakeDate-today)/86400000);
+  const missedCount = state.selectedIds.size;
+  const studyDaysCount = state.planDays.filter(d=>d.type==='study').length;
+  const isCompressed = !state.isTriage && studyDaysCount>0 && missedCount > studyDaysCount;
+
+  let html = `
+    <div class="countdown">
+      <div class="n mono">T-${daysUntil}</div>
+      <div class="lbl">Days to retake</div>
+      <div class="meta">${state.studentInfo.name} &middot; ${exam.name} &middot; Previous score: ${state.studentInfo.score || '—'} &middot; Retake: ${formatDate(retakeDate)}</div>
+    </div>`;
+  if(state.isTriage){
+    html += `<div class="triage-note">
+      <div class="triage-note-title">You were only ${state.pointsBehind} point${state.pointsBehind===1?'':'s'} away.</div>
+      With a short runway to your retake, this plan skips broad coverage and goes deep on your top 5 highest-impact gaps instead — the ones most likely to flip enough points. Everything else you missed is listed below in case you have extra time, but it's not part of the day-by-day plan.
+    </div>`;
+  } else if(isCompressed){
+    html += `<div class="compressed-note">Short timeline for ${missedCount} missed objectives — some days bundle more than one so everything you missed still gets touched before the retake.</div>`;
+  }
+  document.getElementById('plan-summary').innerHTML = html;
+}
+
+function renderAppendix(){
+  const container = document.getElementById('plan-appendix');
+  if(!container) return;
+  if(!state.isTriage || !state.appendixObjectiveIds.length){ container.innerHTML=''; return; }
+  const exam = EXAM_DATA[state.studentInfo.exam];
+  const objs = state.appendixObjectiveIds.map(id=>exam.objectives.find(o=>o.id===id)).filter(Boolean);
+  let html = `<div class="appendix-box">
+    <h4>If You Have Extra Time</h4>
+    <p class="appendix-intro">These didn't make the top 5, but you missed them too. Not scheduled into a day — just here if you want to glance at them.</p>`;
+  objs.forEach(o=>{
+    html += `<div class="appendix-item">
+      <div class="focus"><span class="obj-id mono">${o.id}</span>${o.title}</div>
+      <div class="tip">${o.tip}</div>
+    </div>`;
+  });
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function renderAccordion(){
+  const container = document.getElementById('plan-days');
+  const unlockedMax = computeUnlockedMax();
+  const firstIncomplete = firstIncompleteIndex();
+  let html = '';
+
+  state.planDays.forEach((day, idx)=>{
+    const dayNum = idx+1;
+    const locked = dayNum > unlockedMax;
+    const completed = state.completedDayIndices.has(idx);
+    const isToday = !locked && !completed && idx === firstIncomplete;
+    const status = locked ? 'Locked' : (completed ? 'Done' : (isToday ? 'Today' : 'Available'));
+    const statusClass = locked ? 'locked' : (completed ? 'done' : (isToday ? 'today' : 'available'));
+    const cardClass = 'day-card' + (locked?' locked':'') + (completed?' completed':'') + (isToday?' today':'');
+
+    const date = new Date(state.startDate+"T00:00:00"); date.setDate(date.getDate()+idx);
+    let title;
+    if(day.type==='practice') title = 'Full Practice Exam';
+    else if(day.type==='light') title = 'Final Review & Test-Day Prep';
+    else title = day.objectives.length>1 ? `${day.objectives.length} objectives` : day.objectives[0].title;
+
+    const expanded = state.expandedDay===idx;
+    html += `<div class="${cardClass}">
+      <div class="day-header" onclick="${locked?'':'toggleDay('+idx+')'}">
+        <div class="dh-left">
+          <span class="dh-num mono">Day ${dayNum}</span>
+          <div>
+            <div class="dh-title">${title}</div>
+            <div class="dh-date">${formatDate(date)}</div>
+          </div>
+        </div>
+        <span class="status-pill ${statusClass}">${status}</span>
+      </div>
+      <div class="day-body" id="day-body-${idx}" style="display:${(!locked && expanded)?'block':'none'};">
+        ${renderDayBody(day, idx)}
+      </div>
+      ${locked ? `<div class="locked-note no-print">Unlocks ${formatDate(date)}</div>` : ''}
+    </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleDay(idx){
+  state.expandedDay = (state.expandedDay===idx) ? -1 : idx;
+  renderAccordion();
+}
+
+function renderDayBody(day, idx){
+  let html = '';
+
+  if(day.type === 'study'){
+    const warmupQs = gatherWarmupQuestions(idx);
+    if(warmupQs.length) html += buildWarmupHtml(idx, warmupQs);
+
+    html += '<div class="checklist-label" style="margin-top:0;">Today\'s Focus</div>';
+    day.objectives.forEach(o=>{
+      const checklistHtml = (o.checklist||[]).map(c=>`<span class="check-tag">${c}</span>`).join('');
+      html += `
+        <div class="obj-item">
+          <div class="focus"><span class="obj-id mono">${o.id}</span>${o.title}${day.reinforce ? '<span class="reinforce-tag">Reinforcement</span>' : ''}</div>
+          <div class="tip">${o.tip}</div>
+          <div class="action">${buildStudyAction(o)}</div>
+          <div class="checklist-label">Study these specifically:</div>
+          <div class="check-tags">${checklistHtml}</div>
+        </div>`;
+    });
+  } else if(day.type === 'practice'){
+    html += `<div class="obj-item">
+      <div class="focus" style="color:var(--green);">Full-length practice exam, timed conditions</div>
+      <div class="tip">Take a complete practice exam under real time pressure — no notes, no pausing. This is your last big rehearsal, with a buffer day before the real thing so you're not walking in fatigued.</div>
+    </div>`;
+  } else if(day.type === 'light'){
+    const exam = EXAM_DATA[state.studentInfo.exam];
+    const hasStudyDay = state.planDays.some(d=>d.type==='study');
+
+    if(state.isTriage && !hasStudyDay){
+      // T-1 triage case: this light day is the only touchpoint the student
+      // gets, so it carries the full top-5 detail instead of just a recap.
+      const top5Ids = [...state.selectedIds].filter(id=>!state.appendixObjectiveIds.includes(id));
+      const top5 = top5Ids.map(id=>exam.objectives.find(o=>o.id===id)).filter(Boolean);
+      html += `<div class="obj-item">
+        <div class="focus" style="color:var(--green);">One day left — focus only, no cramming everything</div>
+        <div class="tip">You were only ${state.pointsBehind} point${state.pointsBehind===1?'':'s'} away. Go deep on these ${top5.length}, skip the rest for now.</div>
+      </div>`;
+      top5.forEach(o=>{
+        const checklistHtml = (o.checklist||[]).map(c=>`<span class="check-tag">${c}</span>`).join('');
+        html += `<div class="obj-item">
+          <div class="focus"><span class="obj-id mono">${o.id}</span>${o.title}</div>
+          <div class="tip">${o.tip}</div>
+          <div class="action">${buildStudyAction(o)}</div>
+          <div class="checklist-label">Study these specifically:</div>
+          <div class="check-tags">${checklistHtml}</div>
+        </div>`;
+      });
+    } else if(state.isTriage){
+      const top5Ids = [...state.selectedIds].filter(id=>!state.appendixObjectiveIds.includes(id));
+      const top5 = top5Ids.map(id=>exam.objectives.find(o=>o.id===id)).filter(Boolean);
+      html += `<div class="obj-item">
+        <div class="focus" style="color:var(--green);">Light review only — no new material</div>
+        <div class="tip">Keep this short. The goal is confidence, not cramming.</div>
+      </div>`;
+      if(top5.length){
+        html += '<div class="checklist-label">Spot-check your top 5 one more time:</div><div class="check-tags">'
+          + top5.map(o=>`<span class="check-tag">${o.id} ${o.title}</span>`).join('') + '</div>';
+      }
+    } else {
+      const flagged = exam.objectives.filter(o=>state.selectedIds.has(o.id) && (o.confuse||o.roi));
+      html += `<div class="obj-item">
+        <div class="focus" style="color:var(--green);">Light review only — no new material</div>
+        <div class="tip">Keep this short. The goal is confidence, not cramming.</div>
+      </div>`;
+      if(flagged.length){
+        html += '<div class="checklist-label">Spot-check these one more time:</div><div class="check-tags">'
+          + flagged.map(o=>`<span class="check-tag">${o.id} ${o.title}</span>`).join('') + '</div>';
+      }
+    }
+
+    html += `<div class="checklist-label" style="margin-top:14px;">Test-Day Basics</div>
+    <ul class="logistics-list">
+      <li>Get a full night's sleep — don't stay up cramming</li>
+      <li>Eat something before you go; don't test hungry</li>
+    </ul>
+    <div class="checklist-label" style="margin-top:14px;">If Testing In-Person</div>
+    <ul class="logistics-list">
+      <li>Confirm your testing center address and appointment time</li>
+      <li>Bring two forms of valid ID</li>
+      <li>Arrive 15-30 minutes early</li>
+    </ul>
+    <div class="checklist-label" style="margin-top:14px;">If Testing at Home (OnVUE)</div>
+    <ul class="logistics-list">
+      <li>Test your internet connection, webcam, and mic well before your start time</li>
+      <li>Clear your desk completely — no papers, notes, phone, or second monitor in the room</li>
+      <li>Have your private, well-lit room ready for the required camera room scan</li>
+      <li>Bring one form of valid photo ID matching your registration name exactly</li>
+      <li>Close every other application on your computer before you check in</li>
+    </ul>`;
+  }
+
+  if(!state.completedDayIndices.has(idx)){
+    html += `<div class="mark-complete"><button class="btn" onclick="markDayComplete(${idx})">Mark day complete</button></div>`;
+  }
+  return html;
+}
+
+function markDayComplete(idx){
+  state.completedDayIndices.add(idx);
+  state.expandedDay = idx+1 < state.planDays.length ? idx+1 : -1;
+  savePlanState();
+  renderAccordion();
+}
+
+// Warm-up: pull recall questions from yesterday's study day, plus
+// occasionally one reaching back 2-3 days for real spaced review.
+function gatherWarmupQuestions(dayIndex){
+  const result = [];
+  const prevDay = state.planDays[dayIndex-1];
+  if(prevDay && prevDay.type === 'study'){
+    prevDay.objectives.forEach(o=>{
+      if(o.recall && o.recall.length) result.push({q:o.recall[0]});
+    });
+  }
+  const fartherIdx = dayIndex-3 >= 0 ? dayIndex-3 : (dayIndex-2 >= 0 ? dayIndex-2 : -1);
+  const fartherDay = fartherIdx>=0 ? state.planDays[fartherIdx] : null;
+  if(fartherDay && fartherDay.type === 'study'){
+    const pool = fartherDay.objectives.filter(o=>o.confuse||o.roi);
+    const source = pool.length ? pool : fartherDay.objectives;
+    const o = source[0];
+    if(o && o.recall && o.recall[1]) result.push({q:o.recall[1]});
+  }
+  return result.slice(0,3);
+}
+
+function buildWarmupHtml(dayIndex, questions){
+  let html = '<div class="warmup-box"><h4>Quick Recall — Before Today\'s Material</h4>';
+  questions.forEach((wq, qi)=>{
+    const key = dayIndex+'_'+qi;
+    html += `<div class="recall-q"><div class="qtext">${wq.q.q}</div>`;
+    if(wq.q.type === 'mc'){
+      wq.q.options.forEach((opt,oi)=>{
+        html += `<button type="button" class="recall-opt" id="opt-${key}-${oi}" onclick="answerMc('${key}',${oi},${wq.q.answer})">${opt}</button>`;
+      });
+    } else {
+      html += `<div class="recall-short">
+        <input type="text" id="input-${key}" placeholder="Type your answer..." oninput="document.getElementById('reveal-btn-${key}').disabled = this.value.trim().length===0;">
+        <button type="button" class="btn-small" id="reveal-btn-${key}" disabled onclick="revealShort('${key}')">Show Answer</button>
+        <div class="recall-answer" id="answer-${key}">${wq.q.a}</div>
+      </div>`;
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function answerMc(key, selectedIdx, correctIdx){
+  const buttons = document.querySelectorAll(`[id^="opt-${key}-"]`);
+  buttons.forEach((b,i)=>{
+    b.disabled = true;
+    if(i===correctIdx){
+      b.classList.add('correct');
+      b.innerHTML = '✓ ' + b.innerHTML;
+    } else if(i===selectedIdx){
+      b.classList.add('incorrect');
+      b.innerHTML = '✗ ' + b.innerHTML;
+    }
+  });
+  state.recallResults[key] = (selectedIdx===correctIdx);
+  savePlanState();
+}
+
+function revealShort(key){
+  const answerEl = document.getElementById('answer-'+key);
+  const btnEl = document.getElementById('reveal-btn-'+key);
+  const inputEl = document.getElementById('input-'+key);
+  if(answerEl) answerEl.classList.add('shown');
+  if(btnEl) btnEl.disabled = true;
+  if(inputEl) inputEl.disabled = true;
+  state.recallResults[key] = true;
+  savePlanState();
+}
+
+window.addEventListener('DOMContentLoaded', ()=>{
+  if(!storageAvailable()){
+    const w = document.getElementById('storage-warning');
+    if(w) w.style.display='block';
+    return;
+  }
+  for(const examId of Object.keys(EXAM_DATA)){
+    const data = loadPlanState(examId);
+    if(data){ showResumeBanner(examId, data); break; }
+  }
+});
+</script>
+</body>
+</html>
