@@ -59,6 +59,11 @@ objectives they missed, and gets a day-by-day plan saved in `localStorage`.
   Security+ 2.5) carry neither flag, so they get no reinforcement days.
 - **`PASSING_SCORES`:** Security+ V8 is 750, confirmed by the owner on
   30 September 2026. CySA+ is 750, as printed on the CS0-004 score report.
+  A+ Core 2 (700) and Network+ (725) are also confirmed by the owner on
+  30 September 2026. Both exams are still "coming soon": they wait on CompTIA's
+  official numbered objective lists for 220-1202 and N10-009. The owner's doc
+  gives only domain topics for them, and the quiz repos' short labels aren't
+  CompTIA's wording.
 
 ## Known open issues (owner told 29–30 Sept 2026, not yet fixed)
 
